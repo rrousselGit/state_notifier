@@ -25,10 +25,13 @@ typedef RemoveListener = void Function();
 /// This callback should not throw.
 ///
 /// It exists merely for error reporting (mainly `FlutterError.onError`), and
-/// should not be used otherwise.
+/// should not be used otherwise.\
 /// If you need an error status, consider adding an error property on
 /// your custom [StateNotifier.state].
 typedef ErrorListener = void Function(dynamic error, StackTrace stackTrace);
+
+/// {@macro notifier.locator}
+typedef Locator = T Function<T>();
 
 /// An observable class that stores a single immutable [state].
 ///
@@ -38,7 +41,7 @@ typedef ErrorListener = void Function(dynamic error, StackTrace stackTrace);
 /// # Reading the current [state]:
 ///
 /// The [state] property is protected and should be used only by the subclasses
-/// of [StateNotifier].
+/// of [StateNotifier].\
 /// If you want to obtain the current [state] from outside of [StateNotifier],
 /// consider using [addListener] instead.
 ///
@@ -52,8 +55,6 @@ typedef ErrorListener = void Function(dynamic error, StackTrace stackTrace);
 ///
 /// - it does not depend on Flutter
 /// - both the getter and setter of [state] are protected.
-/// - it is aware of service locators like `provider` and nicely integrates with
-///   them (without depending on them). See [locator], [debugMockDependency], [watch].
 /// - adding and removing listeners is O(1) (vs O(N) for `ValueNotifier`)
 /// - there is no `notifyListeners` method.
 /// - listeners cannot add more listeners.
@@ -76,7 +77,7 @@ abstract class StateNotifier<T> {
   /// This callback should not throw.
   ///
   /// It exists merely for error reporting (mainly `FlutterError.onError`), and
-  /// should not be used otherwise.
+  /// should not be used otherwise.\
   /// If you need an error status, consider adding an error property on
   /// your custom [state].
   ErrorListener onError;
@@ -125,7 +126,7 @@ Consider checking `mounted`.
 
   /// A developmnent-only way to access [state] outside of [StateNotifier].
   ///
-  /// The only difference with [state] is that [debugState] is not "protected".
+  /// The only difference with [state] is that [debugState] is not "protected".\
   /// Will not work in release mode.
   ///
   /// This is useful for tests.
@@ -224,3 +225,79 @@ class _ListenerEntry<T> extends LinkedListEntry<_ListenerEntry<T>> {
 
   final Listener<T> listener;
 }
+
+/// A mixin that adds service location capability to an object.
+///
+/// This makes the object aware of things like `Provider.of` or `GetIt`, without
+/// actually depending on those.\
+/// It also provides testing utilities to be able to mock dependencies.
+///
+/// In the context of Flutter + `provider`, adding that mixin to an object
+/// makes it impossible to shared one instance across multiple multiple "providers".
+///
+/// See also:
+///
+/// - [locator], to read objects
+/// - [debugMockDependency], to mock dependencies returned by [locator]
+/// - [update], a new life-cycle to synchronize this object with external objects.
+mixin LocatorMixin {
+  // ignore: prefer_function_declarations_over_variables
+  Locator _locator = <T>() => throw DependencyNotFoundException<T>();
+
+  /// {@template notifier.locator}
+  /// A function that allows obtaining other objects.
+  ///
+  /// It is typically equivalent to `Provider.of(context, listen: false)` when
+  /// using `provider`, but it could also be `GetIt.get` for example.
+  /// {@endtemplate}
+  ///
+  /// **DON'T** modify [locator] manually.\
+  /// The only reason why [locator] is not `final` is so that it can be
+  /// initialized by providers from `flutter_notifier`.
+  @protected
+  Locator get locator {
+    assert(_debugIsNotifierMounted());
+    return _locator;
+  }
+
+  set locator(Locator locator) {
+    assert(_debugIsNotifierMounted());
+    _locator = locator;
+  }
+
+  bool _debugIsNotifierMounted() {
+    assert(() {
+      if (this is StateNotifier) {
+        final instance = this as StateNotifier;
+        assert(instance._debugIsMounted());
+      }
+      return true;
+    }());
+    return true;
+  }
+
+  void debugMockDependency<Dependency>(Dependency value) {
+    assert(_debugIsNotifierMounted());
+    assert(() {
+      final previousLocator = locator;
+      locator = <Target>() {
+        assert(_debugIsNotifierMounted());
+        if (Dependency == Target) {
+          return value as Target;
+        }
+        return previousLocator<Target>();
+      };
+      return true;
+    }());
+  }
+
+  /// A life-cycle that allows listening to updates on another object.
+  ///
+  /// This is equivalent to what "ProxyProviders" do using `provider`, but
+  /// implemented with no dependency on Flutter.
+  @protected
+  void update(Locator watch) {}
+}
+
+/// Thrown when called [LocatorMixin.locator], but the object was not found.
+class DependencyNotFoundException<T> implements Exception {}

@@ -3,6 +3,10 @@ import 'package:test/test.dart';
 
 import 'package:state_notifier/state_notifier.dart';
 
+Matcher throwsDependencyNotFound<T>() {
+  return throwsA(isA<DependencyNotFoundException<T>>());
+}
+
 void main() {
   test('initialize state with default value', () {
     expect(TestNotifier(0).currentState, 0);
@@ -152,6 +156,9 @@ void main() {
     expect(() => notifier.currentState, throwsStateError);
     expect(notifier.increment, throwsStateError);
     expect(() => notifier.hasListeners, throwsStateError);
+    expect(() => notifier.read, throwsStateError);
+    expect(() => notifier.debugMockDependency(42), throwsStateError);
+    expect(() => notifier.locator = <T>() => throw Error(), throwsStateError);
 
     verifyZeroInteractions(listener);
 
@@ -265,11 +272,47 @@ void main() {
     verify(listener(2)).called(1);
     verifyNoMoreInteractions(listener);
   });
-  // TODO: cannot read locator/debugMockDependency/update when disposed
+  test('locator throws by default', () {
+    expect(
+      () => TestNotifier(0).read<int>(),
+      throwsDependencyNotFound<int>(),
+    );
+  });
+  group('debugMockDependency', () {
+    test('can mock dependencies', () {
+      final notifier = TestNotifier(0);
+
+      expect(
+        () => notifier.read<int>(),
+        throwsDependencyNotFound<int>(),
+      );
+
+      notifier.debugMockDependency<int>(42);
+
+      expect(notifier.read<int>(), 42);
+      expect(() => notifier.read<String>(), throwsDependencyNotFound<String>());
+    });
+    test('mock is using identical type comparison -> no subclass', () {
+      final notifier = TestNotifier(0)..debugMockDependency<num>(42);
+
+      expect(notifier.read<num>(), 42);
+      expect(() => notifier.read<int>(), throwsDependencyNotFound<int>());
+      expect(() => notifier.read<double>(), throwsDependencyNotFound<double>());
+    });
+    test(
+        'mocking dependency then disposing the objet correctly disable locator',
+        () {
+      final notifier = TestNotifier(0)
+        ..debugMockDependency(42)
+        ..dispose();
+
+      expect(() => notifier.read, throwsStateError);
+    });
+  });
   // TODO: cannot use locator inside update
 }
 
-class TestNotifier extends StateNotifier<int> {
+class TestNotifier extends StateNotifier<int> with LocatorMixin {
   TestNotifier(int state) : super(state);
 
   int get currentState => state;
@@ -277,6 +320,8 @@ class TestNotifier extends StateNotifier<int> {
   void increment() {
     state++;
   }
+
+  Locator get read => locator;
 }
 
 class Listener extends Mock {
