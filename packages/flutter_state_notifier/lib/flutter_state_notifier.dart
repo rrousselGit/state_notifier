@@ -3,8 +3,9 @@ library flutter_state_notifier;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
+import 'package:provider/single_child_widget.dart';
 import 'package:state_notifier/state_notifier.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' hide Locator;
 
 /// {@template flutter_state_notifier.state_notifier_builder}
 /// Listens to a [StateNotifier] and use it builds a widget tree based on the
@@ -97,5 +98,158 @@ class _StateNotifierBuilderState<T> extends State<StateNotifierBuilder<T>> {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DiagnosticsProperty<T>('state', state));
+  }
+}
+
+// Don't uses a closure to not capture local variables.
+Locator _contextToLocator(BuildContext context) {
+  return <T>() {
+    try {
+      return context.read<T>();
+    } on ProviderNotFoundException catch (_) {
+      throw DependencyNotFoundException<T>();
+    }
+  };
+}
+
+/// A provider for [StateNotifier], which exposes both the controller and its
+/// [StateNotifier.state].
+///
+/// It can be used like most providers.
+///
+/// Consider the following [StateNotifier]:
+/// ```dart
+/// class MyNotifier extends StateNotifier<MyValue> {
+/// ...
+/// }
+/// ```
+///
+/// Then we can expose it to a Flutter app by doing:
+///
+/// ```dart
+/// MultiProvider(
+///   providers: [
+///     StateNotifierProvider<MyNotifier, MyValue>(create: (_) => MyNotifier()),
+///   ],
+/// )
+/// ```
+///
+/// This will allow both:
+///
+/// - `context.watch<MyController>()`
+/// - `context.watch<MyValue>()`
+///
+/// Note that watching `MyController` will not cause the listener to rebuild when
+/// [StateNotifier.state] updates.
+class StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
+    extends SingleChildStatelessWidget {
+  /// Creates a [StateNotifier] instance and exposes both the [StateNotifier]
+  /// and its [StateNotifier.state] using `provider`.
+  ///
+  /// **DON'T** use this with an existing [StateNotifier] instance, as removing
+  /// the provider from the widget tree will dispose the [StateNotifier].\
+  /// Instead consider using [StateNotifierBuilder].
+  ///
+  /// `create` cannot be `null`.
+  // ignore: prefer_const_constructors_in_immutables
+  StateNotifierProvider({
+    Key key,
+    @required Create<Controller> create,
+    bool lazy,
+    Widget child,
+  })  : assert(create != null),
+        _create = create,
+        _lazy = lazy,
+        super(key: key, child: child);
+
+  final Create<Controller> _create;
+  final bool _lazy;
+
+  @override
+  Widget buildWithChild(BuildContext context, Widget child) {
+    return InheritedProvider<Controller>(
+      create: (context) {
+        final result = _create(context);
+        assert(result.onError == null);
+        result.onError = (dynamic error, StackTrace stack) {
+          FlutterError.reportError(FlutterErrorDetails(
+            exception: error,
+            stack: stack,
+            library: 'flutter_state_notifier',
+          ));
+        };
+        if (result is LocatorMixin) {
+          (result as LocatorMixin).locator = _contextToLocator(context);
+        }
+        return result;
+      },
+      debugCheckInvalidValueType: kReleaseMode
+          ? null
+          : (value) {
+              assert(!value.hasListeners);
+            },
+      update: (context, controller) {
+        if (controller is LocatorMixin) {
+          final locatorMixin = controller as LocatorMixin;
+          Locator debugPreviousLocator;
+          assert(() {
+            // ignore: invalid_use_of_protected_member
+            debugPreviousLocator = locatorMixin.locator;
+            locatorMixin.locator = <T>() {
+              throw StateError(
+                  "Can't use `locator` inside the body of `update");
+            };
+            return true;
+          }());
+          // ignore: invalid_use_of_protected_member
+          locatorMixin.update(context.watch);
+          assert(() {
+            locatorMixin.locator = debugPreviousLocator;
+            return true;
+          }());
+        }
+        return controller;
+      },
+      dispose: (_, controller) => controller.dispose(),
+      child: DeferredInheritedProvider<Controller, Value>(
+        lazy: _lazy,
+        create: (context) => context.read<Controller>(),
+        startListening: (context, setState, controller, _) {
+          return controller.addListener(setState);
+        },
+        child: child,
+      ),
+    );
+  }
+
+  @override
+  SingleChildStatelessElement createElement() {
+    return _StateNotifierProviderElement(this);
+  }
+}
+
+class _StateNotifierProviderElement<Controller extends StateNotifier<Value>,
+    Value> extends SingleChildStatelessElement {
+  _StateNotifierProviderElement(StateNotifierProvider<Controller, Value> widget)
+      : super(widget);
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    Element provider;
+
+    void visitor(Element e) {
+      if (e.widget is DeferredInheritedProvider<Controller, Value>) {
+        provider = e;
+      } else {
+        e.visitChildren(visitor);
+      }
+    }
+
+    visitChildren(visitor);
+
+    assert(provider != null);
+
+    provider.debugFillProperties(properties);
   }
 }

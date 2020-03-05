@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
 
-import 'package:state_notifier/state_notifier.dart';
+import 'common.dart';
 
 void main() {
   testWidgets('rebuilds when value changes', (tester) async {
@@ -129,25 +128,4 @@ void main() {
 
     expect(state.toString(), endsWith('(state: 1)'));
   });
-  // TODO: cannot use locator inside update
-}
-
-class TestNotifier extends StateNotifier<int> with LocatorMixin {
-  TestNotifier(int state) : super(state);
-
-  int get currentState => state;
-
-  void increment() {
-    state++;
-  }
-
-  Locator get read => locator;
-}
-
-class Listener extends Mock {
-  void call(int value);
-}
-
-class ErrorListener extends Mock {
-  void call(dynamic error, StackTrace stackTrace);
 }

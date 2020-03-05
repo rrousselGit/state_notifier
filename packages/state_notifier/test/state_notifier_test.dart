@@ -309,7 +309,6 @@ void main() {
       expect(() => notifier.read, throwsStateError);
     });
   });
-  // TODO: cannot use locator inside update
 }
 
 class TestNotifier extends StateNotifier<int> with LocatorMixin {
