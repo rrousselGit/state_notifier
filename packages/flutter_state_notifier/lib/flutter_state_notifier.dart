@@ -141,8 +141,11 @@ Locator _contextToLocator(BuildContext context) {
 ///
 /// Note that watching `MyController` will not cause the listener to rebuild when
 /// [StateNotifier.state] updates.
-class StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
-    extends SingleChildStatelessWidget {
+abstract class StateNotifierProvider<Controller extends StateNotifier<Value>,
+        Value>
+    implements
+        // ignore: avoid_implementing_value_types
+        SingleChildStatelessWidget {
   /// Creates a [StateNotifier] instance and exposes both the [StateNotifier]
   /// and its [StateNotifier.state] using `provider`.
   ///
@@ -151,25 +154,86 @@ class StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
   /// Instead consider using [StateNotifierBuilder].
   ///
   /// `create` cannot be `null`.
-  // ignore: prefer_const_constructors_in_immutables
-  StateNotifierProvider({
+  factory StateNotifierProvider({
     Key key,
     @required Create<Controller> create,
     bool lazy,
     Widget child,
-  })  : assert(create != null),
-        _create = create,
-        _lazy = lazy,
+  }) = _StateNotifierProvider<Controller, Value>;
+
+  /// Exposes an existing [StateNotifier] and its [value].
+  ///
+  /// This will not call [StateNotifier.dispose] when the provider is removed
+  /// from the widget tree.
+  ///
+  /// It will also not setup [LocatorMixin].
+  ///
+  /// `value` cannot be `null`.
+  factory StateNotifierProvider.value({
+    Key key,
+    @required Controller value,
+    Widget child,
+  }) = _StateNotifierProviderValue<Controller, Value>;
+}
+
+class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
+        Value> extends SingleChildStatelessWidget
+    implements StateNotifierProvider<Controller, Value> {
+  // ignore: prefer_const_constructors_in_immutables
+  _StateNotifierProviderValue({
+    Key key,
+    @required this.value,
+    Widget child,
+  })  : assert(value != null),
         super(key: key, child: child);
 
-  final Create<Controller> _create;
-  final bool _lazy;
+  final Controller value;
+
+  @override
+  Widget buildWithChild(BuildContext context, Widget child) {
+    return InheritedProvider.value(
+      value: value,
+      child: StateNotifierBuilder<Value>(
+        stateNotifier: value,
+        builder: (c, state, _) {
+          return Provider.value(value: state, child: child);
+        },
+      ),
+    );
+  }
+
+  @override
+  SingleChildStatelessElement createElement() {
+    return _StateNotifierProviderElement(this);
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty('controller', value));
+  }
+}
+
+class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
+    extends SingleChildStatelessWidget
+    implements StateNotifierProvider<Controller, Value> {
+  // ignore: prefer_const_constructors_in_immutables
+  _StateNotifierProvider({
+    Key key,
+    @required this.create,
+    this.lazy,
+    Widget child,
+  })  : assert(create != null),
+        super(key: key, child: child);
+
+  final Create<Controller> create;
+  final bool lazy;
 
   @override
   Widget buildWithChild(BuildContext context, Widget child) {
     return InheritedProvider<Controller>(
       create: (context) {
-        final result = _create(context);
+        final result = create(context);
         assert(result.onError == null);
         result.onError = (dynamic error, StackTrace stack) {
           FlutterError.reportError(FlutterErrorDetails(
@@ -211,7 +275,7 @@ class StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
       },
       dispose: (_, controller) => controller.dispose(),
       child: DeferredInheritedProvider<Controller, Value>(
-        lazy: _lazy,
+        lazy: lazy,
         create: (context) => context.read<Controller>(),
         startListening: (context, setState, controller, _) {
           return controller.addListener(setState);
@@ -238,7 +302,7 @@ class _StateNotifierProviderElement<Controller extends StateNotifier<Value>,
     Element provider;
 
     void visitor(Element e) {
-      if (e.widget is DeferredInheritedProvider<Controller, Value>) {
+      if (e.widget is InheritedProvider<Value>) {
         provider = e;
       } else {
         e.visitChildren(visitor);

@@ -224,8 +224,46 @@ void main() {
     );
 
     expect(key.currentContext.toString(),
-        startsWith('StateNotifierProvider<TestNotifier, int>'));
+        startsWith('_StateNotifierProvider<TestNotifier, int>'));
     expect(key.currentContext.toString(),
         endsWith('(controller: Instance of \'TestNotifier\', value: 0)'));
+  });
+
+  testWidgets('.value', (tester) async {
+    final notifier = TestNotifier(0);
+    final key = GlobalKey();
+
+    await tester.pumpWidget(
+      StateNotifierProvider<TestNotifier, int>.value(
+        key: key,
+        value: notifier,
+        child: Column(
+          textDirection: TextDirection.ltr,
+          children: <Widget>[
+            TextConsumer<TestNotifier>(),
+            TextConsumer<int>(),
+          ],
+        ),
+      ),
+    );
+
+    expect(key.currentContext.toString(),
+        startsWith('_StateNotifierProviderValue<TestNotifier, int>'));
+    expect(key.currentContext.toString(),
+        endsWith('(controller: Instance of \'TestNotifier\', value: 0)'));
+
+    expect(find.text('Instance of \'TestNotifier\''), findsOneWidget);
+    expect(find.text('0'), findsOneWidget);
+
+    notifier.increment();
+    await tester.pump();
+
+    expect(find.text('Instance of \'TestNotifier\''), findsOneWidget);
+    expect(find.text('1'), findsOneWidget);
+
+    expect(key.currentContext.toString(),
+        startsWith('_StateNotifierProviderValue<TestNotifier, int>'));
+    expect(key.currentContext.toString(),
+        endsWith('(controller: Instance of \'TestNotifier\', value: 1)'));
   });
 }

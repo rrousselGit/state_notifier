@@ -1,6 +1,6 @@
 name: flutter_state_notifier
 description: Flutter bindings for state_notifier (providers, builders)
-version: 0.1.0+1
+version: 0.2.0
 author: Remi Rousselet <darky12s@gmail.com>
 homepage: https://github.com/rrousselGit/state_notifier
 
