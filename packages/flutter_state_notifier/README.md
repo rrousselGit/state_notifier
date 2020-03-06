@@ -1,3 +1,5 @@
+[![pub package](https://img.shields.io/pub/v/flutter_state_notifier.svg)](https://pub.dartlang.org/packages/flutter_state_notifier)
+
 Welcome to **flutter_state_notifier**~
 
 This repository is a side-package that is destined to be used together with **state_notifier**.

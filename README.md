@@ -1,3 +1,4 @@
+[![pub package](https://img.shields.io/pub/v/state_notifier.svg)](https://pub.dartlang.org/packages/state_notifier)
 Welcome to **state_notifier**~
 
 This repository is a set of packages that reimplements [ValueNotifier] outside of Flutter.
