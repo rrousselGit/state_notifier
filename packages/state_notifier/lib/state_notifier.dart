@@ -318,7 +318,7 @@ mixin LocatorMixin {
   ///
   /// This is equivalent to what "ProxyProviders" do using `provider`, but
   /// implemented with no dependency on Flutter.
-  /// 
+  ///
   /// The property [read] is not accessible while inside the body of [update].
   /// Use the parameter passed to [update] instead, which will not just read the
   /// object but also watch for changes.
