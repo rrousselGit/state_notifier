@@ -158,7 +158,7 @@ void main() {
     expect(() => notifier.hasListeners, throwsStateError);
     expect(() => notifier.read, throwsStateError);
     expect(() => notifier.debugMockDependency(42), throwsStateError);
-    expect(() => notifier.locator = <T>() => throw Error(), throwsStateError);
+    expect(() => notifier.read = <T>() => throw Error(), throwsStateError);
 
     verifyZeroInteractions(listener);
 
@@ -272,11 +272,22 @@ void main() {
     verify(listener(2)).called(1);
     verifyNoMoreInteractions(listener);
   });
-  test('locator throws by default', () {
+  test('read throws by default', () {
     expect(
       () => TestNotifier(0).read<int>(),
       throwsDependencyNotFound<int>(),
     );
+  });
+  test('debugUpdate calls update and disables read', () {
+    final notifier = TestNotifier(0)..debugMockDependency('42');
+
+    expect(notifier.lastUpdateString, null);
+    expect(notifier.lastUpdateRead, null);
+
+    notifier.debugUpdate();
+
+    expect(notifier.lastUpdateString, '42');
+    expect(notifier.lastUpdateRead, throwsStateError);
   });
   group('debugMockDependency', () {
     test('can mock dependencies', () {
@@ -300,7 +311,7 @@ void main() {
       expect(() => notifier.read<double>(), throwsDependencyNotFound<double>());
     });
     test(
-        'mocking dependency then disposing the objet correctly disable locator',
+        'mocking dependency then disposing the objet correctly disable read',
         () {
       final notifier = TestNotifier(0)
         ..debugMockDependency(42)
@@ -320,7 +331,18 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
     state++;
   }
 
-  Locator get read => locator;
+  @override
+  void update(Locator watch) {
+    lastUpdateRead = read;
+    lastUpdateString = watch<String>();
+  }
+
+  Locator lastUpdateRead;
+  String lastUpdateString;
+
+  @override
+  // ignore: unnecessary_overrides, remove protected
+  Locator get read => super.read;
 }
 
 class Listener extends Mock {

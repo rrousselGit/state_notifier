@@ -30,7 +30,11 @@ typedef RemoveListener = void Function();
 /// your custom [StateNotifier.state].
 typedef ErrorListener = void Function(dynamic error, StackTrace stackTrace);
 
-/// {@macro notifier.locator}
+/// A funtion that allows obtaining other objects.
+///
+/// This is usually equivalent to `Provider.of`, but with no dependency on Flutter
+///
+/// May throw a [DependencyNotFoundException].
 typedef Locator = T Function<T>();
 
 /// An observable class that stores a single immutable [state].
@@ -235,34 +239,39 @@ class _ListenerEntry<T> extends LinkedListEntry<_ListenerEntry<T>> {
 /// In the context of Flutter + `provider`, adding that mixin to an object
 /// makes it impossible to shared one instance across multiple "providers".
 ///
+/// This mix-in does not do anything by itself.\
+/// It is simply an interface for 3rd party libraries such as provider to implement
+/// the logic.
+///
 /// See also:
 ///
-/// - [locator], to read objects
-/// - [debugMockDependency], to mock dependencies returned by [locator]
+/// - [read], to read objects
+/// - [debugMockDependency], to mock dependencies returned by [read]
 /// - [update], a new life-cycle to synchronize this object with external objects.
+/// - [debugUpdate], a method to test [update].
 mixin LocatorMixin {
   // ignore: prefer_function_declarations_over_variables
   Locator _locator = <T>() => throw DependencyNotFoundException<T>();
 
-  /// {@template notifier.locator}
   /// A function that allows obtaining other objects.
   ///
   /// It is typically equivalent to `Provider.of(context, listen: false)` when
   /// using `provider`, but it could also be `GetIt.get` for example.
-  /// {@endtemplate}
   ///
-  /// **DON'T** modify [locator] manually.\
-  /// The only reason why [locator] is not `final` is so that it can be
+  /// **DON'T** modify [read] manually.\
+  /// The only reason why [read] is not `final` is so that it can be
   /// initialized by providers from `flutter_notifier`.
+  ///
+  /// May throw a [DependencyNotFoundException] if the looked-up type is not found.
   @protected
-  Locator get locator {
+  Locator get read {
     assert(_debugIsNotifierMounted());
     return _locator;
   }
 
-  set locator(Locator locator) {
+  set read(Locator read) {
     assert(_debugIsNotifierMounted());
-    _locator = locator;
+    _locator = read;
   }
 
   bool _debugIsNotifierMounted() {
@@ -276,11 +285,25 @@ mixin LocatorMixin {
     return true;
   }
 
+  /// Overrides [read] to mock its behavior in development.
+  ///
+  /// This does nothing in release mode and is useful only for test purpose.
+  ///
+  /// A typical usage would be:
+  ///
+  /// ```dart
+  /// class MyServiceMock extends Mock implements MyService {}
+  ///
+  /// test('mock dependency', () {
+  ///   final myStateNotifier = MyStateNotifier();
+  ///   myStateNotifier.debugMockDependency<MyService>(MyServiceMock());
+  /// });
+  /// ```
   void debugMockDependency<Dependency>(Dependency value) {
     assert(_debugIsNotifierMounted());
     assert(() {
-      final previousLocator = locator;
-      locator = <Target>() {
+      final previousLocator = read;
+      read = <Target>() {
         assert(_debugIsNotifierMounted());
         if (Dependency == Target) {
           return value as Target;
@@ -295,9 +318,29 @@ mixin LocatorMixin {
   ///
   /// This is equivalent to what "ProxyProviders" do using `provider`, but
   /// implemented with no dependency on Flutter.
+  /// 
+  /// The property [read] is not accessible while inside the body of [update].
+  /// Use the parameter passed to [update] instead, which will not just read the
+  /// object but also watch for changes.
   @protected
   void update(Locator watch) {}
+
+  /// A test utility to mock the test the behavior of your [update] method.
+  ///
+  /// This calls [update] with [read] disabled.
+  void debugUpdate() {
+    assert(() {
+      final locator = read;
+      read = <T>() => throw StateError('Cannot use `read` inside `update`');
+      try {
+        update(locator);
+      } finally {
+        read = locator;
+      }
+      return true;
+    }());
+  }
 }
 
-/// Thrown when called [LocatorMixin.locator], but the object was not found.
+/// Thrown when tried to call [LocatorMixin.read<T>()], but the [T] was not found.s
 class DependencyNotFoundException<T> implements Exception {}

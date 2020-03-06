@@ -83,11 +83,12 @@ Of course, we still don't want to depend on Flutter/provider to do such a thing.
 
 Similarly, since `state` is protected, tests need a simple way to read the state.
 
-As such, `LocatorMixin` also adds extra utilities to help you with this scenario:\
+As such, `LocatorMixin` also adds extra utilities to help you with this scenario:
 
-```
+```dart
 myStateNotifier.debugMockDependency<MyDependency>(myDependency);
 print(myStateNotifier.debugState);
+myStateNotifier.debugUpdate();
 ```
 
 As such, if we want to test our previous `Counter`, we could mock `LocalStorage`
@@ -130,5 +131,7 @@ differences:
 
 [provider]: https://pub.dev/packages/provider
 [changenotifierprovider]: https://pub.dev/documentation/provider/latest/provider/ChangeNotifierProvider-class.html
+[statenotifier]: https://pub.dev/documentation/state_notifier/latest/state_notifier/StateNotifier-class.html
+[LocatorMixin]: https://pub.dev/documentation/state_notifier/latest/state_notifier/LocatorMixin-class.html
 [valuenotifier]: https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html
 [changenotifier]: https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html

@@ -179,7 +179,7 @@ class StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
           ));
         };
         if (result is LocatorMixin) {
-          (result as LocatorMixin).locator = _contextToLocator(context);
+          (result as LocatorMixin).read = _contextToLocator(context);
         }
         return result;
       },
@@ -194,17 +194,16 @@ class StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
           Locator debugPreviousLocator;
           assert(() {
             // ignore: invalid_use_of_protected_member
-            debugPreviousLocator = locatorMixin.locator;
-            locatorMixin.locator = <T>() {
-              throw StateError(
-                  "Can't use `locator` inside the body of `update");
+            debugPreviousLocator = locatorMixin.read;
+            locatorMixin.read = <T>() {
+              throw StateError("Can't use `read` inside the body of `update");
             };
             return true;
           }());
           // ignore: invalid_use_of_protected_member
           locatorMixin.update(context.watch);
           assert(() {
-            locatorMixin.locator = debugPreviousLocator;
+            locatorMixin.read = debugPreviousLocator;
             return true;
           }());
         }

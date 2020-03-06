@@ -15,7 +15,9 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   final void Function(Locator watch) onUpdate;
 
-  Locator get read => locator;
+  @override
+  // ignore: unnecessary_overrides, remvove protected
+  Locator get read => super.read;
 
   @override
   void update(T Function<T>() watch) {
