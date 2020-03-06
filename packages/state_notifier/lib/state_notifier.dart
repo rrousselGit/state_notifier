@@ -296,7 +296,7 @@ mixin LocatorMixin {
   /// This is equivalent to what "ProxyProviders" do using `provider`, but
   /// implemented with no dependency on Flutter.
   @protected
-  void update(Locator watch) {}
+  void update(Locator locator) {}
 }
 
 /// Thrown when called [LocatorMixin.locator], but the object was not found.
