@@ -117,7 +117,7 @@ differences:
 
 - [ValueNotifier] is instead named [StateNotifier] (to avoid name clash)
 - `ValueNotifier.value` is renamed to `state`, to match the class name
-- [StateNotifer] is abstract
+- [StateNotifier] is abstract
 - `state` is `@protected`
 - The listener passed to `addListener` receives the current `state`, and is called
   synchronously on addition.
