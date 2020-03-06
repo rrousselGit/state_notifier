@@ -233,7 +233,7 @@ class _ListenerEntry<T> extends LinkedListEntry<_ListenerEntry<T>> {
 /// It also provides testing utilities to be able to mock dependencies.
 ///
 /// In the context of Flutter + `provider`, adding that mixin to an object
-/// makes it impossible to shared one instance across multiple multiple "providers".
+/// makes it impossible to shared one instance across multiple "providers".
 ///
 /// See also:
 ///
