@@ -150,12 +150,12 @@ packages:
     source: hosted
     version: "1.9.3"
   state_notifier:
-    dependency: "direct overridden"
+    dependency: "direct main"
     description:
-      path: "../state_notifier"
-      relative: true
-    source: path
-    version: "0.0.1"
+      name: state_notifier
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   stream_channel:
     dependency: transitive
     description:
