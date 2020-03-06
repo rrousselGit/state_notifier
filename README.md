@@ -4,12 +4,12 @@ This repository is a set of packages that reimplements [ValueNotifier] outside o
 
 It is spread across two packages:
 
-- `notifier`, a pure Dart package containing the reimplementation of [ValueNotifier].\
+- `state_notifier`, a pure Dart package containing the reimplementation of [ValueNotifier].\
   It comes with extra utilities for combining our "[ValueNotifier]" with [provider]
   and to test it.
-- `flutter_notifier`, a binding between `notifier` and Flutter.\
+- `flutter_notifier`, a binding between `state_notifier` and Flutter.\
   It adds things like [ChangeNotifierProvider] from [provider], but compatible
-  with `notifier`.
+  with `state_notifier`.
 
 # Motivation
 
@@ -22,7 +22,7 @@ package has two purposes:
 - It allows solving some common problems with the original [ChangeNotifier]/[ValueNotifier]
   and/or their combination with [provider].
 
-For example, by using `notifier` instead of the original [ValueNotifier], then
+For example, by using `state_notifier` instead of the original [ValueNotifier], then
 you get:
 
 - A significant simplification of the integration with [provider]
