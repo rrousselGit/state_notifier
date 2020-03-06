@@ -1,0 +1,21 @@
+name: example
+description: A new Flutter project.
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  state_notifier: ^0.1.0
+  flutter_state_notifier: ^0.1.0
+  provider: ^4.1.0-dev
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^4.1.0
+
+flutter:
+  uses-material-design: true
