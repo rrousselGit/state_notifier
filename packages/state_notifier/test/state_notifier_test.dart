@@ -278,15 +278,25 @@ void main() {
       throwsDependencyNotFound<int>(),
     );
   });
-  test('debugUpdate calls update and disables read', () {
+  test('debugUpdate calls initState+update and disables read', () {
     final notifier = TestNotifier(0)..debugMockDependency('42');
 
+    expect(notifier.lastInitString, null);
     expect(notifier.lastUpdateString, null);
     expect(notifier.lastUpdateRead, null);
 
     notifier.debugUpdate();
 
+    expect(notifier.lastInitString, '42');
     expect(notifier.lastUpdateString, '42');
+    expect(notifier.lastUpdateRead, throwsStateError);
+
+    notifier
+      ..debugMockDependency('24')
+      ..debugUpdate();
+
+    expect(notifier.lastInitString, '42');
+    expect(notifier.lastUpdateString, '24');
     expect(notifier.lastUpdateRead, throwsStateError);
   });
   group('debugMockDependency', () {
@@ -328,6 +338,13 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   void increment() {
     state++;
+  }
+
+  String lastInitString;
+
+  @override
+  void initState() {
+    lastInitString = read();
   }
 
   @override

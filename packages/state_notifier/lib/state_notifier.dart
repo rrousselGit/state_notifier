@@ -314,6 +314,15 @@ mixin LocatorMixin {
     }());
   }
 
+  /// A life-cycle that allows initializing the [StateNotifier] based on values
+  /// coming from [read].
+  ///
+  /// This method will be called once, right before [update].
+  ///
+  /// It is useful as constructors cannot access [read].
+  @protected
+  void initState() {}
+
   /// A life-cycle that allows listening to updates on another object.
   ///
   /// This is equivalent to what "ProxyProviders" do using `provider`, but
@@ -325,11 +334,21 @@ mixin LocatorMixin {
   @protected
   void update(Locator watch) {}
 
-  /// A test utility to mock the test the behavior of your [update] method.
+  var _debugDidInitState = false;
+
+  /// A test utility to test the behavior of your [initState]/[update] method.
   ///
-  /// This calls [update] with [read] disabled.
+  /// The first time [debugUpdate] is called, this will call [initState] + [update].
+  /// Further calls will only call [update].
+  ///
+  /// While inside [update], [read] will be disabled as it would be in production.
   void debugUpdate() {
     assert(() {
+      if (!_debugDidInitState) {
+        _debugDidInitState = true;
+        initState();
+      }
+
       final locator = read;
       read = <T>() => throw StateError('Cannot use `read` inside `update`');
       try {
