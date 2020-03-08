@@ -60,7 +60,7 @@ class Counter extends StateNotifier<int> with LocatorMixin {
 
 This then gives you access to:
 
-- `locator`, a function to obtain services
+- `read`, a function to obtain services
 - `update`, a new life-cycle that can be used to listen to changes on a service
 
 We could use them to change our `Counter` incrementation to save the counter in
@@ -72,7 +72,7 @@ class Counter extends StateNotifier<int> {
 
   void increment() {
     state++;
-    locator<LocalStorage>().writeInt('count', state);
+    read<LocalStorage>().writeInt('count', state);
   }
 }
 ```

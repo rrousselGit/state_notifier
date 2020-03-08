@@ -30,7 +30,7 @@ typedef RemoveListener = void Function();
 /// your custom [StateNotifier.state].
 typedef ErrorListener = void Function(dynamic error, StackTrace stackTrace);
 
-/// A funtion that allows obtaining other objects.
+/// A function that allows obtaining other objects.
 ///
 /// This is usually equivalent to `Provider.of`, but with no dependency on Flutter
 ///
@@ -49,7 +49,7 @@ typedef Locator = T Function<T>();
 /// If you want to obtain the current [state] from outside of [StateNotifier],
 /// consider using [addListener] instead.
 ///
-/// All listeners added with [addListener] are called **immediatly** on addition
+/// All listeners added with [addListener] are called **immediately** on addition
 /// with the current [state] as parameter, or whenever [state] changes.
 ///
 /// # The differences with `ValueNotifier`
@@ -69,9 +69,9 @@ typedef Locator = T Function<T>();
 /// - [StateNotifier] exposes a [mounted] boolean, to know if [dispose] was
 ///   called or not.
 /// - listeners added with [addListener] receives the current [state] as parameter
-/// - calling [addListener] immediatly calls the listener with the current [state].
+/// - calling [addListener] immediately calls the listener with the current [state].
 abstract class StateNotifier<T> {
-  /// Intiialize [state].
+  /// Initialize [state].
   StateNotifier(this._state);
 
   final _listeners = LinkedList<_ListenerEntry<T>>();
@@ -88,7 +88,7 @@ abstract class StateNotifier<T> {
 
   bool _mounted = true;
 
-  /// Wether [dispose] was called or not.
+  /// Whether [dispose] was called or not.
   bool get mounted => _mounted;
 
   bool _debugCanAddListeners = true;
@@ -128,7 +128,7 @@ Consider checking `mounted`.
     return _state;
   }
 
-  /// A developmnent-only way to access [state] outside of [StateNotifier].
+  /// A development-only way to access [state] outside of [StateNotifier].
   ///
   /// The only difference with [state] is that [debugState] is not "protected".\
   /// Will not work in release mode.
@@ -162,7 +162,7 @@ Consider checking `mounted`.
     }
   }
 
-  /// If a listener has been added using [addListener] and hasen't been removed yet.
+  /// If a listener has been added using [addListener] and hasn't been removed yet.
   bool get hasListeners {
     assert(_debugIsMounted());
     return _listeners.isNotEmpty;
@@ -170,7 +170,7 @@ Consider checking `mounted`.
 
   /// Subscribes to this object.
   ///
-  /// The [listener] callback will be called immediatly on addition and
+  /// The [listener] callback will be called immediately on addition and
   /// synchronously whenever [state] changes.
   ///
   /// To remove this [listener], call the function returned by [addListener]:
