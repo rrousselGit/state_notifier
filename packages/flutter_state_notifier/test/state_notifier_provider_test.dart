@@ -106,7 +106,7 @@ void main() {
     final update = Update((locator) {
       notifier.read<String>();
     });
-    notifier = TestNotifier(0, update);
+    notifier = TestNotifier(0, onUpdate: update);
 
     await tester.pumpWidget(
       MultiProvider(
@@ -123,16 +123,24 @@ void main() {
     expect(tester.takeException(), isStateError);
   });
   testWidgets('plugs update', (tester) async {
-    String value;
-    final update = Update((locator) {
-      value = locator<String>();
+    TestNotifier notifier;
+    String initValue;
+    final initState = InitState(() {
+      initValue = notifier.read<String>();
     });
-    final notifier = TestNotifier(0, update);
+    String updateValue;
+    final update = Update((locator) {
+      updateValue = locator<String>();
+    });
+    notifier = TestNotifier(0, onUpdate: update, onInitState: initState);
     final child = TextConsumer<int>();
 
     final provider = StateNotifierProvider<TestNotifier, int>(
       create: (_) => notifier,
     );
+
+    verifyZeroInteractions(initState);
+    verifyZeroInteractions(update);
 
     await tester.pumpWidget(
       MultiProvider(
@@ -144,7 +152,10 @@ void main() {
       ),
     );
 
-    expect(value, 'a');
+    verify(initState()).called(1);
+    expect(initValue, 'a');
+    verifyNoMoreInteractions(initState);
+    expect(updateValue, 'a');
     verify(update(argThat(isNotNull))).called(1);
     verifyNoMoreInteractions(update);
 
@@ -158,9 +169,10 @@ void main() {
       ),
     );
 
-    expect(value, 'b');
+    expect(updateValue, 'b');
     verify(update(argThat(isNotNull))).called(1);
     verifyNoMoreInteractions(update);
+    verifyNoMoreInteractions(initState);
 
     await tester.pumpWidget(
       MultiProvider(
@@ -172,8 +184,9 @@ void main() {
       ),
     );
 
-    expect(value, 'b');
+    expect(updateValue, 'b');
     verifyNoMoreInteractions(update);
+    verifyNoMoreInteractions(initState);
   });
   testWidgets('plugs onError', (tester) async {
     final notifier = TestNotifier(0);

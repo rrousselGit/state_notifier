@@ -243,7 +243,10 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
           ));
         };
         if (result is LocatorMixin) {
-          (result as LocatorMixin).read = _contextToLocator(context);
+          (result as LocatorMixin)
+            ..read = _contextToLocator(context)
+            // ignore: invalid_use_of_protected_member
+            ..initState();
         }
         return result;
       },

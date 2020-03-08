@@ -5,7 +5,7 @@ import 'package:provider/provider.dart' hide Locator;
 import 'package:state_notifier/state_notifier.dart';
 
 class TestNotifier extends StateNotifier<int> with LocatorMixin {
-  TestNotifier(int state, [this.onUpdate]) : super(state);
+  TestNotifier(int state, {this.onInitState, this.onUpdate}) : super(state);
 
   int get currentState => state;
 
@@ -13,11 +13,17 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
     state++;
   }
 
+  final void Function() onInitState;
   final void Function(Locator watch) onUpdate;
 
   @override
   // ignore: unnecessary_overrides, remvove protected
   Locator get read => super.read;
+
+  @override
+  void initState() {
+    onInitState?.call();
+  }
 
   @override
   void update(T Function<T>() watch) {
@@ -39,6 +45,17 @@ class Update extends Mock {
     }
   }
   void call(Locator watch);
+}
+
+class InitState extends Mock {
+  InitState([void Function() cb]) {
+    if (cb != null) {
+      when(call()).thenAnswer((realInvocation) {
+        return cb();
+      });
+    }
+  }
+  void call();
 }
 
 class ErrorListener extends Mock {

@@ -155,7 +155,7 @@ packages:
       name: state_notifier
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "0.3.0"
   stream_channel:
     dependency: transitive
     description:
