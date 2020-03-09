@@ -129,11 +129,10 @@ void main() {
       initValue = notifier.read<String>();
     });
     String updateValue;
-    final update = Update((locator) {
-      updateValue = locator<String>();
+    final update = Update((watch) {
+      updateValue = watch<String>();
     });
     notifier = TestNotifier(0, onUpdate: update, onInitState: initState);
-    final child = TextConsumer<int>();
 
     final provider = StateNotifierProvider<TestNotifier, int>(
       create: (_) => notifier,
@@ -141,6 +140,8 @@ void main() {
 
     verifyZeroInteractions(initState);
     verifyZeroInteractions(update);
+
+    final child = TextConsumer<int>();
 
     await tester.pumpWidget(
       MultiProvider(
@@ -279,4 +280,54 @@ void main() {
     expect(key.currentContext.toString(),
         endsWith('(controller: Instance of \'TestNotifier\', value: 1)'));
   });
+
+  testWidgets('works', (tester) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          StateNotifierProvider<_Controller1, Counter1>(
+            create: (context) => _Controller1(),
+          ),
+          StateNotifierProvider<_Controller2, Counter2>(
+            create: (context) => _Controller2(),
+          ),
+        ],
+        child: Consumer<Counter2>(
+          builder: (c, value, _) {
+            return Text('${value.count}', textDirection: TextDirection.ltr);
+          },
+        ),
+      ),
+    );
+  });
+}
+
+class _Controller1 extends StateNotifier<Counter1> {
+  _Controller1() : super(Counter1(0));
+
+  void increment() => state = Counter1(state.count + 1);
+}
+
+class Counter1 {
+  Counter1(this.count);
+
+  final int count;
+}
+
+class _Controller2 extends StateNotifier<Counter2> with LocatorMixin {
+  _Controller2() : super(Counter2(0));
+
+  void increment() => state = Counter2(state.count + 1);
+
+  @override
+  void update(T Function<T>() watch) {
+    watch<Counter1>();
+    watch<_Controller1>();
+  }
+}
+
+class Counter2 {
+  Counter2(this.count);
+
+  final int count;
 }

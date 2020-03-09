@@ -279,7 +279,9 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
       dispose: (_, controller) => controller.dispose(),
       child: DeferredInheritedProvider<Controller, Value>(
         lazy: lazy,
-        create: (context) => context.read<Controller>(),
+        create: (context) {
+          return context.read<Controller>();
+        },
         startListening: (context, setState, controller, _) {
           return controller.addListener(setState);
         },
