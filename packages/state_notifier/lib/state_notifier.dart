@@ -193,19 +193,7 @@ Consider checking `mounted`.
       return true;
     }());
     assert(_debugIsMounted());
-    final _listener = fireImmediately == true
-        ? listener
-        : () {
-            var skipped = false;
-            return (T state) {
-              if (!skipped) {
-                skipped = true;
-                return;
-              }
-              listener(state);
-            };
-          }();
-    final listenerEntry = _ListenerEntry(_listener);
+    final listenerEntry = _ListenerEntry(listener);
     _listeners.add(listenerEntry);
     try {
       assert(_debugSetCanAddListeners(false));
