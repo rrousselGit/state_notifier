@@ -184,7 +184,8 @@ Consider checking `mounted`.
   /// Listeners cannot add other listeners.
   ///
   /// Adding and removing listeners is O(1).
-  RemoveListener addListener(Listener<T> listener) {
+  RemoveListener addListener(Listener<T> listener,
+      {bool fireImmediately = true}) {
     assert(() {
       if (!_debugCanAddListeners) {
         throw ConcurrentModificationError();
@@ -192,11 +193,23 @@ Consider checking `mounted`.
       return true;
     }());
     assert(_debugIsMounted());
-    final listenerEntry = _ListenerEntry(listener);
+    final _listener = fireImmediately == true
+        ? listener
+        : () {
+            var skipped = false;
+            return (T state) {
+              if (!skipped) {
+                skipped = true;
+                return;
+              }
+              listener(state);
+            };
+          }();
+    final listenerEntry = _ListenerEntry(_listener);
     _listeners.add(listenerEntry);
     try {
       assert(_debugSetCanAddListeners(false));
-      listener(state);
+      _listener(state);
     } catch (err, stack) {
       listenerEntry.unlink();
       onError?.call(err, stack);
