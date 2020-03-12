@@ -185,7 +185,7 @@ Consider checking `mounted`.
   ///
   /// Adding and removing listeners is O(1).
   RemoveListener addListener(Listener<T> listener,
-      {bool fireImmediately = true}) {
+      {bool fireImmediately = true,}) {
     assert(() {
       if (!_debugCanAddListeners) {
         throw ConcurrentModificationError();
