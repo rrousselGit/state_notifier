@@ -209,7 +209,9 @@ Consider checking `mounted`.
     _listeners.add(listenerEntry);
     try {
       assert(_debugSetCanAddListeners(false));
-      _listener(state);
+      if (fireImmediatly) {
+        listener(state);
+      }
     } catch (err, stack) {
       listenerEntry.unlink();
       onError?.call(err, stack);
