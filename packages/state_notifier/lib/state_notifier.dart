@@ -172,6 +172,9 @@ Consider checking `mounted`.
   ///
   /// The [listener] callback will be called immediately on addition and
   /// synchronously whenever [state] changes.
+  /// Set [fireImmediately] to false if you want to skip the first,
+  /// immediate execution of the [listener].
+  ///
   ///
   /// To remove this [listener], call the function returned by [addListener]:
   ///
@@ -184,7 +187,10 @@ Consider checking `mounted`.
   /// Listeners cannot add other listeners.
   ///
   /// Adding and removing listeners is O(1).
-  RemoveListener addListener(Listener<T> listener) {
+  RemoveListener addListener(
+    Listener<T> listener, {
+    bool fireImmediately = true,
+  }) {
     assert(() {
       if (!_debugCanAddListeners) {
         throw ConcurrentModificationError();
@@ -196,7 +202,9 @@ Consider checking `mounted`.
     _listeners.add(listenerEntry);
     try {
       assert(_debugSetCanAddListeners(false));
-      listener(state);
+      if (fireImmediately) {
+        listener(state);
+      }
     } catch (err, stack) {
       listenerEntry.unlink();
       onError?.call(err, stack);

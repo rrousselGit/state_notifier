@@ -41,6 +41,22 @@ void main() {
     verify(listener(1)).called(1);
     verifyNoMoreInteractions(listener);
   });
+  test(
+      'listener not called immediately on addition if fireImmediately is false',
+      () {
+    final notifier = TestNotifier(0);
+    final listener = Listener();
+
+    notifier.addListener(listener, fireImmediately: false);
+
+    verifyNever(listener(0));
+    verifyNoMoreInteractions(listener);
+
+    notifier.increment();
+
+    verify(listener(1)).called(1);
+    verifyNoMoreInteractions(listener);
+  });
   test('listener is called after the value is updated', () {
     final notifier = TestNotifier(0);
 
