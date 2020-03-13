@@ -1,3 +1,8 @@
+## [0.4.0] - 13/03/2020
+
+Added a flag on `addListener` to disable the first immediate call of the listener
+thanks to @smiLLe
+
 ## [0.3.0] - 08/03/2020
 
 Add an `initState` life-cycle to be able to init the `StateNotifier` using `read`.
