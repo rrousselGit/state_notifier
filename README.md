@@ -17,7 +17,7 @@ It is spread across two packages:
 Extracting [ValueNotifier] outside of Flutter in a separate
 package has two purposes:
 
-- It allows packages Dart packages with no dependency on Flutter to use these
+- It allows Dart packages with no dependency on Flutter to use these
   classes.\
   This means that we can use them on AngularDart for example.
 - It allows solving some common problems with the original [ChangeNotifier]/[ValueNotifier]
