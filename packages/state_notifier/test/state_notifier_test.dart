@@ -67,6 +67,36 @@ void main() {
 
     expect(lastValue, 1);
   });
+  test('allowTransition is called with correct values', () {
+    final allowTransition = AllowTransition();
+    when(allowTransition.call(any, any)).thenReturn(true);
+
+    final notifier = AllowTransitionTestNotifier(0)
+      ..transition = allowTransition
+      ..increment();
+    verify(allowTransition(0, 1)).called(1);
+
+    notifier.increment();
+    verify(allowTransition(1, 2)).called(1);
+  });
+  test('allowTransition can return false to prevent state update', () {
+    var allow = false;
+
+    final notifier = AllowTransitionTestNotifier(0)
+      ..transition = (_, __) => allow;
+
+    // ignore: cascade_invocations
+    notifier.increment();
+    expect(notifier.debugState, 0);
+
+    allow = true;
+    notifier.increment();
+    expect(notifier.debugState, 1);
+
+    allow = false;
+    notifier.increment();
+    expect(notifier.debugState, 1);
+  });
   test('listener can be removed using addListener result', () {
     final notifier = TestNotifier(0);
     final listener = Listener();
@@ -360,7 +390,7 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   @override
   void initState() {
-    lastInitString = read();
+    lastInitString = read<String>();
   }
 
   @override
@@ -383,4 +413,18 @@ class Listener extends Mock {
 
 class ErrorListener extends Mock {
   void call(dynamic error, StackTrace stackTrace);
+}
+
+class AllowTransitionTestNotifier extends TestNotifier {
+  AllowTransitionTestNotifier(int state) : super(state);
+
+  bool Function(int, int) transition;
+
+  @override
+  bool allowTransition(int fromState, int toState) =>
+      transition(fromState, toState);
+}
+
+class AllowTransition extends Mock {
+  bool call(int from, int to);
 }

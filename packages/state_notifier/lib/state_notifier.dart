@@ -146,6 +146,9 @@ Consider checking `mounted`.
   @protected
   set state(T value) {
     assert(_debugIsMounted());
+    if (!allowTransition(_state, value)) {
+      return;
+    }
     _state = value;
 
     var didThrow = false;
@@ -219,6 +222,9 @@ Consider checking `mounted`.
       }
     };
   }
+
+  @protected
+  bool allowTransition(T fromState, T toState) => true;
 
   /// Frees all the resources associated to this object.
   ///
