@@ -87,15 +87,15 @@ void main() {
 
     // ignore: cascade_invocations
     notifier.increment();
-    expect(notifier.debugState, 0);
+    expect(notifier.currentState, 0);
 
     allow = true;
     notifier.increment();
-    expect(notifier.debugState, 1);
+    expect(notifier.currentState, 1);
 
     allow = false;
     notifier.increment();
-    expect(notifier.debugState, 1);
+    expect(notifier.currentState, 1);
   });
   test('listener can be removed using addListener result', () {
     final notifier = TestNotifier(0);
