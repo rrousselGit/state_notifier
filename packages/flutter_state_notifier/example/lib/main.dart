@@ -4,7 +4,8 @@ import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:provider/provider.dart';
 
 // This is the default counter example reimplemented using StateNotifier + provider
-// It will also print in the console the counter whenever it changes
+// It will print in the console the counter whenever it changes
+// The state change is also animated.
 
 // The "print to console" feature is abstracted through a "Logger" class like
 // we would do in production.
@@ -19,11 +20,37 @@ void main() {
         Provider<Logger>(create: (_) => ConsoleLogger()),
         StateNotifierProvider<MyStateNotifier, MyState>(
           create: (_) => MyStateNotifier(),
+          // Override MyState to make it animated
+          builder: (context, child) {
+            return TweenAnimationBuilder<MyState>(
+              duration: const Duration(milliseconds: 500),
+              tween: MyStateTween(end: context.watch<MyState>()),
+              builder: (context, state, _) {
+                return Provider.value(value: state, child: child);
+              },
+            );
+          },
         ),
       ],
       child: MyApp(),
     ),
   );
+}
+
+/// A [MyStateTween].
+///
+/// This will apply an [IntTween] on [MyState.count].
+class MyStateTween extends Tween<MyState> {
+  MyStateTween({MyState begin, MyState end}) : super(begin: begin, end: end);
+
+  @override
+  MyState lerp(double t) {
+    final countTween = IntTween(begin: begin.count, end: end.count);
+    // Tween the count
+    return MyState(
+      countTween.lerp(t),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
