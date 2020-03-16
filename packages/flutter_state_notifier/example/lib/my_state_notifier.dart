@@ -20,7 +20,7 @@ class MyStateNotifier extends StateNotifier<MyState> with LocatorMixin {
   MyStateNotifier() : super(MyState(0));
 
   void increment() {
-    state = MyState(state.count + 1);
+    state = MyState(state.count + 1000);
   }
 
   @override

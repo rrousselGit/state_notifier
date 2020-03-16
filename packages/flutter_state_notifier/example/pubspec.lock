@@ -65,10 +65,10 @@ packages:
   flutter_state_notifier:
     dependency: "direct main"
     description:
-      name: flutter_state_notifier
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0"
+      path: ".."
+      relative: true
+    source: path
+    version: "0.4.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -129,7 +129,7 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0-dev"
+    version: "4.1.0-dev+2"
   quiver:
     dependency: transitive
     description:
@@ -162,7 +162,7 @@ packages:
       name: state_notifier
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.0"
+    version: "0.4.0"
   stream_channel:
     dependency: transitive
     description:
@@ -214,4 +214,4 @@ packages:
     version: "3.5.0"
 sdks:
   dart: ">=2.7.0 <3.0.0"
-  flutter: ">=1.12.1"
+  flutter: ">=1.15.17-pre.5"

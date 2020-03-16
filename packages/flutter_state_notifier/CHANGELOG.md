@@ -1,3 +1,7 @@
+## 0.4.0
+
+- Add an optional `builder` parameter on `StateNotifierProvider`
+
 ## 0.3.0
 
 - Add support for `LocatorMixin.initState` on `StateNotifierProvider`

@@ -158,6 +158,7 @@ abstract class StateNotifierProvider<Controller extends StateNotifier<Value>,
     Key key,
     @required Create<Controller> create,
     bool lazy,
+    TransitionBuilder builder,
     Widget child,
   }) = _StateNotifierProvider<Controller, Value>;
 
@@ -172,6 +173,7 @@ abstract class StateNotifierProvider<Controller extends StateNotifier<Value>,
   factory StateNotifierProvider.value({
     Key key,
     @required Controller value,
+    TransitionBuilder builder,
     Widget child,
   }) = _StateNotifierProviderValue<Controller, Value>;
 }
@@ -183,11 +185,13 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
   _StateNotifierProviderValue({
     Key key,
     @required this.value,
+    this.builder,
     Widget child,
   })  : assert(value != null),
         super(key: key, child: child);
 
   final Controller value;
+  final TransitionBuilder builder;
 
   @override
   Widget buildWithChild(BuildContext context, Widget child) {
@@ -196,7 +200,11 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
       child: StateNotifierBuilder<Value>(
         stateNotifier: value,
         builder: (c, state, _) {
-          return Provider.value(value: state, child: child);
+          return Provider.value(
+            value: state,
+            builder: builder,
+            child: child,
+          );
         },
       ),
     );
@@ -222,12 +230,14 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
     Key key,
     @required this.create,
     this.lazy,
+    this.builder,
     Widget child,
   })  : assert(create != null),
         super(key: key, child: child);
 
   final Create<Controller> create;
   final bool lazy;
+  final TransitionBuilder builder;
 
   @override
   Widget buildWithChild(BuildContext context, Widget child) {
@@ -285,6 +295,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
         startListening: (context, setState, controller, _) {
           return controller.addListener(setState);
         },
+        builder: builder,
         child: child,
       ),
     );

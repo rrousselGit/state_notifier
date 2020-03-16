@@ -8,14 +8,18 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  state_notifier: ^0.1.0
-  flutter_state_notifier: ^0.1.0
+  state_notifier: ^0.4.0
+  flutter_state_notifier: ^0.4.0
   provider: ^4.1.0-dev
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^4.1.0
+
+dependency_overrides:
+  flutter_state_notifier:
+    path: ../
 
 flutter:
   uses-material-design: true
