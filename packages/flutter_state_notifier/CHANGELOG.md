@@ -1,3 +1,7 @@
+## 0.4.1
+
+- Add support for provider 4.0.x
+
 ## 0.4.0
 
 - Add an optional `builder` parameter on `StateNotifierProvider`
