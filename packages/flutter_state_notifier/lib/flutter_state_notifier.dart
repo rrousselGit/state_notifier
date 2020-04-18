@@ -105,7 +105,7 @@ class _StateNotifierBuilderState<T> extends State<StateNotifierBuilder<T>> {
 Locator _contextToLocator(BuildContext context) {
   return <T>() {
     try {
-      return context.read<T>();
+      return Provider.of<T>(context, listen: false);
     } on ProviderNotFoundException catch (_) {
       throw DependencyNotFoundException<T>();
     }
@@ -202,7 +202,6 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
         builder: (c, state, _) {
           return Provider.value(
             value: state,
-            builder: builder,
             child: child,
           );
         },
@@ -278,7 +277,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
             return true;
           }());
           // ignore: invalid_use_of_protected_member
-          locatorMixin.update(context.watch);
+          locatorMixin.update(<T>() => Provider.of<T>(context));
           assert(() {
             locatorMixin.read = debugPreviousLocator;
             return true;
@@ -290,12 +289,11 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
       child: DeferredInheritedProvider<Controller, Value>(
         lazy: lazy,
         create: (context) {
-          return context.read<Controller>();
+          return Provider.of<Controller>(context, listen: false);
         },
         startListening: (context, setState, controller, _) {
           return controller.addListener(setState);
         },
-        builder: builder,
         child: child,
       ),
     );

@@ -87,7 +87,7 @@ class _TextConsumerState<T> extends State<TextConsumer<T>> {
   Widget build(BuildContext context) {
     buildCount++;
     return Text(
-      context.watch<T>().toString(),
+      Provider.of<T>(context).toString(),
       textDirection: TextDirection.ltr,
     );
   }

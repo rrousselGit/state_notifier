@@ -20,8 +20,8 @@ void main() {
       ),
     );
 
-    expect(context.read<TestNotifier>(), notifier);
-    expect(context.read<int>(), 0);
+    expect(Provider.of<TestNotifier>(context, listen: false), notifier);
+    expect(Provider.of<int>(context, listen: false), 0);
 
     expect(notifier.mounted, isTrue);
 
