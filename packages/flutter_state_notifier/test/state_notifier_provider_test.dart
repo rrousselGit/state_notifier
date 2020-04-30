@@ -10,6 +10,48 @@ import 'package:provider/provider.dart';
 import 'common.dart';
 
 void main() {
+  testWidgets('StateNotifierProvider builder', (tester) async {
+    final notifier = TestNotifier(0);
+
+    final expectedChild = Container();
+
+    await tester.pumpWidget(
+      StateNotifierProvider<TestNotifier, int>(
+        create: (_) => notifier,
+        builder: (context, child) {
+          assert(child == expectedChild);
+          return Text(
+            Provider.of<int>(context).toString(),
+            textDirection: TextDirection.ltr,
+          );
+        },
+        child: expectedChild,
+      ),
+    );
+
+    expect(find.text('0'), findsOneWidget);
+  });
+  testWidgets('StateNotifierProvider.value builder', (tester) async {
+    final notifier = TestNotifier(0);
+
+    final expectedChild = Container();
+
+    await tester.pumpWidget(
+      StateNotifierProvider<TestNotifier, int>.value(
+        value: notifier,
+        builder: (context, child) {
+          assert(child == expectedChild);
+          return Text(
+            Provider.of<int>(context).toString(),
+            textDirection: TextDirection.ltr,
+          );
+        },
+        child: expectedChild,
+      ),
+    );
+
+    expect(find.text('0'), findsOneWidget);
+  });
   testWidgets('exposes both controller and value', (tester) async {
     final notifier = TestNotifier(0);
 

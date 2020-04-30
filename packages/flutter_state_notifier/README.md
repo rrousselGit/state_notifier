@@ -83,3 +83,5 @@ return StateNotifierBuilder<MyState>(
 [statenotifier]: https://pub.dev/documentation/state_notifier/latest/state_notifier/StateNotifier-class.html
 [statenotifierprovider]: https://pub.dev/documentation/flutter_state_notifier/latest/flutter_state_notifier/StateNotifierProvider-class.html
 [statenotifierbuilder]: https://pub.dev/documentation/flutter_state_notifier/latest/flutter_state_notifier/StateNotifierBuilder-class.html
+[LocatorMixin]: https://pub.dev/documentation/state_notifier/latest/state_notifier/LocatorMixin-class.html
+[provider]: https://pub.dev/packages/provider

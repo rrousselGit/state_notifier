@@ -202,7 +202,9 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
         builder: (c, state, _) {
           return Provider.value(
             value: state,
-            child: child,
+            child: builder != null //
+                ? Builder(builder: (c) => builder(c, child))
+                : child,
           );
         },
       ),
@@ -294,7 +296,9 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
         startListening: (context, setState, controller, _) {
           return controller.addListener(setState);
         },
-        child: child,
+        child: builder != null //
+            ? Builder(builder: (c) => builder(c, child))
+            : child,
       ),
     );
   }

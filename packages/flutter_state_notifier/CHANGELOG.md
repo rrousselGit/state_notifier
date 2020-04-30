@@ -1,3 +1,7 @@
+## 0.4.2
+
+- Fix the `builder` parameter of `StateNotifierProvider` not working
+
 ## 0.4.1
 
 - Add support for provider 4.0.x
