@@ -119,7 +119,7 @@ Locator _contextToLocator(BuildContext context) {
 ///
 /// Consider the following [StateNotifier]:
 /// ```dart
-/// class MyNotifier extends StateNotifier<MyValue> {
+/// class MyController extends StateNotifier<MyValue> {
 /// ...
 /// }
 /// ```
@@ -129,7 +129,7 @@ Locator _contextToLocator(BuildContext context) {
 /// ```dart
 /// MultiProvider(
 ///   providers: [
-///     StateNotifierProvider<MyNotifier, MyValue>(create: (_) => MyNotifier()),
+///     StateNotifierProvider<MyController, MyValue>(create: (_) => MyController()),
 ///   ],
 /// )
 /// ```
