@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -221,6 +223,24 @@ void main() {
 
     verify(onError(error, argThat(isNotNull))).called(1);
     verifyNoMoreInteractions(onError);
+  });
+  test('no onError fallbacks to zone', () {
+    final notifier = TestNotifier(0)
+      ..addListener((v) {
+        if (v > 0) throw StateError('first');
+      })
+      ..addListener((v) {
+        if (v > 0) throw StateError('second');
+      });
+
+    final errors = <Object>[];
+    runZonedGuarded(notifier.increment, (err, stack) => errors.add(err));
+
+    expect(errors, [
+      isStateError.having((s) => s.message, 'message', 'first'),
+      isStateError.having((s) => s.message, 'message', 'second'),
+      isA<Error>(),
+    ]);
   });
   test('onError (change)', () {
     final onError = ErrorListener();

@@ -1,3 +1,7 @@
+## [0.5.0] - 4/06/2020
+
+If no `onError` is specified, errors are now reported to the current `Zone`.
+
 ## [0.4.0] - 13/03/2020
 
 Added a flag on `addListener` to disable the first immediate call of the listener

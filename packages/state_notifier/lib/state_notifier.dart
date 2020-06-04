@@ -1,5 +1,6 @@
 library state_notifier;
 
+import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
@@ -152,9 +153,13 @@ Consider checking `mounted`.
     for (final listenerEntry in _listeners) {
       try {
         listenerEntry.listener(value);
-      } catch (err, stack) {
+      } catch (error, stackTrace) {
         didThrow = true;
-        onError?.call(err, stack);
+        if (onError != null) {
+          onError(error, stackTrace);
+        } else {
+          Zone.current.handleUncaughtError(error, stackTrace);
+        }
       }
     }
     if (didThrow) {
