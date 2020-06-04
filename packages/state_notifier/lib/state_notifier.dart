@@ -81,10 +81,12 @@ abstract class StateNotifier<T> {
   ///
   /// This callback should not throw.
   ///
-  /// It exists merely for error reporting (mainly `FlutterError.onError`), and
+  /// It exists for error reporting (mainly `FlutterError.onError`), and
   /// should not be used otherwise.\
   /// If you need an error status, consider adding an error property on
   /// your custom [state].
+  /// 
+  /// If no [onError] is specified, fallbacks to [Zone.current.handleUncaughtError].
   ErrorListener onError;
 
   bool _mounted = true;
