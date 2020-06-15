@@ -11,8 +11,8 @@ void main() {
 
     myNotifier.increment();
 
-    expect(myNotifier.debugState.count, 1);
-    verify(logger.countChanged(1)).called(1);
+    expect(myNotifier.debugState.count, 1000);
+    verify(logger.countChanged(1000)).called(1);
     verifyNoMoreInteractions(logger);
   });
 }

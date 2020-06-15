@@ -26,12 +26,12 @@ void main() {
     );
 
     expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(find.text('1000'), findsNothing);
 
     await tester.tap(find.byIcon(Icons.add));
     await tester.pump();
 
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('1000'), findsOneWidget);
     expect(find.text('0'), findsNothing);
   });
 }

@@ -85,7 +85,7 @@ abstract class StateNotifier<T> {
   /// should not be used otherwise.\
   /// If you need an error status, consider adding an error property on
   /// your custom [state].
-  /// 
+  ///
   /// If no [onError] is specified, fallbacks to [Zone.current.handleUncaughtError].
   ErrorListener onError;
 

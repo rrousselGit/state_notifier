@@ -38,11 +38,16 @@ you get:
 Consider a typical [StateNotifier] written like a [ValueNotifier]:
 
 ```dart
-class Counter extends StateNotifier<int> {
-  Counter(): super(0)
+class Count {
+  Count(this.count);
+  final int count;
+}
+
+class Counter extends StateNotifier<Count> {
+  Counter(): super(Count(0));
 
   void increment() {
-    state++;
+    state = Count(state.count + 1);
   }
 }
 ```
@@ -53,7 +58,7 @@ In this example, we may want to use `Provider.of`/`context.read` to connect our
 To do so, simply mix-in `LocatorMixin` as such:
 
 ```dart
-class Counter extends StateNotifier<int> with LocatorMixin {
+class Counter extends StateNotifier<Count> with LocatorMixin {
 // unchanged
 }
 ```
@@ -67,13 +72,48 @@ We could use them to change our `Counter` incrementation to save the counter in
 a DB when incrementing the value:
 
 ```dart
-class Counter extends StateNotifier<int> {
-  Counter(): super(0)
+class Counter extends StateNotifier<Count> with LocatorMixin {
+  Counter(): super(Count(0))
 
   void increment() {
-    state++;
-    read<LocalStorage>().writeInt('count', state);
+    state = Count(state.count + 1);
+    read<LocalStorage>().writeInt('count', state.count);
   }
+}
+```
+
+Where `Counter` and `LocalStorage` are defined using `provider` this way:
+
+```dart
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => LocalStorage()),
+        StateNotifierProvider<Counter, Count>(create: (_) => Counter()),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
+```
+
+
+Then, `Counter`/`Count` are consumed using your typical `context.watch`/`Consumer`/`context.select`/...:
+
+
+```dart
+@override
+Widget build(BuildContext context) {
+  int count = context.watch<Count>().count;
+
+  return Scaffold(
+    body: Text('$count'),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () => context.read<Counter>().increment(),
+      child: Icon(Icons.add),
+    ),
+  );
 }
 ```
 

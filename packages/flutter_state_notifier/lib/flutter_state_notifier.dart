@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:state_notifier/state_notifier.dart';
-import 'package:provider/provider.dart' hide Locator;
+import 'package:provider/provider.dart';
 
 /// {@template flutter_state_notifier.state_notifier_builder}
 /// Listens to a [StateNotifier] and use it builds a widget tree based on the
