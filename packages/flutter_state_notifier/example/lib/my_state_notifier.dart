@@ -23,8 +23,6 @@ class MyStateNotifier extends StateNotifier<MyState> with LocatorMixin {
     state = MyState(state.count + 1000);
   }
 
-  
-
   @override
   @protected
   set state(MyState value) {
