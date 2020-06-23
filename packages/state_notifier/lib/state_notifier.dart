@@ -75,10 +75,22 @@ typedef Locator = T Function<T>();
 /// - calling [addListener] immediately calls the listener with the current [state].
 abstract class StateNotifier<T> {
   /// Initialize [state].
-  StateNotifier(this._state);
+  StateNotifier(this._state, {this.maxTrackedChanges = 0}) {
+    _changeStack = ChangeStack<T>(max: maxTrackedChanges);
+  }
+
+  /// Amount of changes to track before throwing away.
+  ///
+  /// If [-1] then it will have an unbounded history.
+  ///
+  /// If [0] then it will not track changes.
+  /// This is the default option.
+  ///
+  /// If [>=1] then it will throw away the oldest change.
+  int maxTrackedChanges;
 
   final _listeners = LinkedList<_ListenerEntry<T>>();
-  final _changeStack = ChangeStack<T>();
+  ChangeStack<T> _changeStack;
 
   /// A callback for error reporting if one of the listeners added with [addListener] throws.
   ///

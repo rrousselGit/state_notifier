@@ -15,12 +15,17 @@ class ChangeStack<T> {
   /// Add New Change and Clear Redo Stack
   void add(Change<T> change) {
     change.execute();
+    if (max != null && max == 0) {
+      return;
+    }
 
     _history.addLast(change);
     _redos.clear();
 
     if (max != null && _history.length > max) {
-      _history.removeFirst();
+      if (max > 0) {
+        _history.removeFirst();
+      }
     }
   }
 
