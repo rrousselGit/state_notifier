@@ -5,6 +5,8 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 
+import 'src/undo_stack.dart';
+
 /// A listener that can be added to a [StateNotifier] using
 /// [StateNotifier.addListener].
 ///
@@ -76,6 +78,7 @@ abstract class StateNotifier<T> {
   StateNotifier(this._state);
 
   final _listeners = LinkedList<_ListenerEntry<T>>();
+  final _changeStack = ChangeStack<T>();
 
   /// A callback for error reporting if one of the listeners added with [addListener] throws.
   ///
@@ -131,6 +134,27 @@ Consider checking `mounted`.
     return _state;
   }
 
+  /// Undo the last change
+  void undo() {
+    _changeStack.undo();
+  }
+
+  /// Redo the previous change
+  void redo() {
+    _changeStack.redo();
+  }
+
+  /// Checks whether the undo/redo stack is empty
+  bool get canUndo => _changeStack.canUndo;
+
+  /// Checks wether the undo/redo stack is at the current change
+  bool get canRedo => _changeStack.canRedo;
+
+  /// Clear undo/redo history
+  void clear() {
+    _changeStack.clear();
+  }
+
   /// A development-only way to access [state] outside of [StateNotifier].
   ///
   /// The only difference with [state] is that [debugState] is not "protected".\
@@ -149,8 +173,15 @@ Consider checking `mounted`.
   @protected
   set state(T value) {
     assert(_debugIsMounted());
-    _state = value;
+    _changeStack.add(Change<T>(
+      _state,
+      () => _updateState(value),
+      _updateState,
+    ));
+  }
 
+  void _updateState(T value) {
+    _state = value;
     var didThrow = false;
     for (final listenerEntry in _listeners) {
       try {
