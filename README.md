@@ -151,6 +151,8 @@ test('increment and saves to local storage', () {
 });
 ```
 
+**Note:** `LocatorMixin` only works on `StateNotifier`, if you try to use it on other classes by `with LocatorMixin` then it will not work.
+
 # Differences with [ValueNotifier]
 
 This is not a one-to-one reimplementation of [ValueNotifier]. It has some
