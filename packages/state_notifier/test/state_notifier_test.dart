@@ -227,10 +227,14 @@ void main() {
   test('no onError fallbacks to zone', () {
     final notifier = TestNotifier(0)
       ..addListener((v) {
-        if (v > 0) throw StateError('first');
+        if (v > 0) {
+          throw StateError('first');
+        }
       })
       ..addListener((v) {
-        if (v > 0) throw StateError('second');
+        if (v > 0) {
+          throw StateError('second');
+        }
       });
 
     final errors = <Object>[];
@@ -247,10 +251,14 @@ void main() {
     final notifier = TestNotifier(0)
       ..onError = onError
       ..addListener((v) {
-        if (v > 0) throw StateError('message');
+        if (v > 0) {
+          throw StateError('message');
+        }
       })
       ..addListener((v) {
-        if (v > 0) throw ArgumentError();
+        if (v > 0) {
+          throw ArgumentError();
+        }
       });
 
     verifyZeroInteractions(onError);

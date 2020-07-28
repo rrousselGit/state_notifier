@@ -13,8 +13,8 @@ void main() {
       StateNotifierBuilder<int>(
         stateNotifier: notifier,
         builder: (context, value, c) {
-          assert(context != null);
-          assert(child == c);
+          assert(context != null, '');
+          assert(child == c, '');
           return Text('$value', textDirection: TextDirection.ltr);
         },
         child: child,
@@ -50,22 +50,7 @@ void main() {
 
     expect(notifier.hasListeners, isFalse);
   });
-  test('builder and notifier cannot be null', () {
-    expect(
-      () => StateNotifierBuilder(
-        builder: null,
-        stateNotifier: TestNotifier(0),
-      ),
-      throwsAssertionError,
-    );
-    expect(
-      () => StateNotifierBuilder<int>(
-        builder: (a, b, c) => Container(),
-        stateNotifier: null,
-      ),
-      throwsAssertionError,
-    );
-  });
+
   testWidgets('change notifier', (tester) async {
     final notifier = TestNotifier(0);
 
@@ -115,7 +100,7 @@ void main() {
 
     expect(
       child.toString(),
-      'StateNotifierBuilder<int>(stateNotifier: Instance of \'TestNotifier\', child: null, has builder)',
+      "StateNotifierBuilder<int>(stateNotifier: Instance of 'TestNotifier', child: null, has builder)",
     );
 
     await tester.pumpWidget(child);

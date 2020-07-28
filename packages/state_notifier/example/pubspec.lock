@@ -58,7 +58,7 @@ packages:
   flutter_state_notifier:
     dependency: "direct main"
     description:
-      path: ".."
+      path: "../../flutter_state_notifier"
       relative: true
     source: path
     version: "0.6.0"

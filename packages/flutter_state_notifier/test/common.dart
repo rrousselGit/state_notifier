@@ -65,6 +65,7 @@ class ErrorListener extends Mock {
 BuildContext get context => find.byType(Context).evaluate().single;
 
 class Context extends StatelessWidget {
+  const Context({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container();
@@ -77,6 +78,7 @@ int buildCountOf<T extends TextConsumer<dynamic>>(T value) {
 }
 
 class TextConsumer<T> extends StatefulWidget {
+  const TextConsumer({Key key}) : super(key: key);
   @override
   _TextConsumerState<T> createState() => _TextConsumerState<T>();
 }

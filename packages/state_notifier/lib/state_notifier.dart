@@ -76,9 +76,9 @@ typedef Locator = T Function<T>();
 ///
 /// Then, the object can either be listened like with `StateNofierBuilder`/`StateNotifierProvider`
 /// using `package:flutter_state_notifier` or `package:riverpod`.
-/// 
+///
 /// See also:
-/// 
+///
 /// - [addListener], to manually listen to a [StateNotifier]
 /// - [state], to internally read and update the value exposed.
 abstract class StateNotifier<T> {
@@ -118,7 +118,7 @@ abstract class StateNotifier<T> {
     assert(() {
       _debugCanAddListeners = value;
       return true;
-    }());
+    }(), '');
     return true;
   }
 
@@ -132,7 +132,7 @@ Consider checking `mounted`.
 ''');
       }
       return true;
-    }());
+    }(), '');
     return true;
   }
 
@@ -146,13 +146,13 @@ Consider checking `mounted`.
   /// Updating the state will throw if at least one listener throws.
   @protected
   T get state {
-    assert(_debugIsMounted());
+    assert(_debugIsMounted(), '');
     return _state;
   }
 
   @protected
   set state(T value) {
-    assert(_debugIsMounted());
+    assert(_debugIsMounted(), '');
     _state = value;
     _controller?.add(value);
 
@@ -185,13 +185,13 @@ Consider checking `mounted`.
     assert(() {
       result = _state;
       return true;
-    }());
+    }(), '');
     return result;
   }
 
   /// If a listener has been added using [addListener] and hasn't been removed yet.
   bool get hasListeners {
-    assert(_debugIsMounted());
+    assert(_debugIsMounted(), '');
     return _listeners.isNotEmpty;
   }
 
@@ -222,12 +222,12 @@ Consider checking `mounted`.
         throw ConcurrentModificationError();
       }
       return true;
-    }());
-    assert(_debugIsMounted());
+    }(), '');
+    assert(_debugIsMounted(), '');
     final listenerEntry = _ListenerEntry(listener);
     _listeners.add(listenerEntry);
     try {
-      assert(_debugSetCanAddListeners(false));
+      assert(_debugSetCanAddListeners(false), '');
       if (fireImmediately) {
         listener(state);
       }
@@ -236,7 +236,7 @@ Consider checking `mounted`.
       onError?.call(err, stack);
       rethrow;
     } finally {
-      assert(_debugSetCanAddListeners(true));
+      assert(_debugSetCanAddListeners(true), '');
     }
 
     return () {
@@ -252,7 +252,7 @@ Consider checking `mounted`.
   /// besides [mounted] inaccessible.
   @mustCallSuper
   void dispose() {
-    assert(_debugIsMounted());
+    assert(_debugIsMounted(), '');
     _listeners.clear();
     _controller?.close();
     _mounted = false;
@@ -300,12 +300,12 @@ mixin LocatorMixin {
   /// May throw a [DependencyNotFoundException] if the looked-up type is not found.
   @protected
   Locator get read {
-    assert(_debugIsNotifierMounted());
+    assert(_debugIsNotifierMounted(), '');
     return _locator;
   }
 
   set read(Locator read) {
-    assert(_debugIsNotifierMounted());
+    assert(_debugIsNotifierMounted(), '');
     _locator = read;
   }
 
@@ -313,10 +313,10 @@ mixin LocatorMixin {
     assert(() {
       if (this is StateNotifier) {
         final instance = this as StateNotifier;
-        assert(instance._debugIsMounted());
+        assert(instance._debugIsMounted(), '');
       }
       return true;
-    }());
+    }(), '');
     return true;
   }
 
@@ -335,18 +335,18 @@ mixin LocatorMixin {
   /// });
   /// ```
   void debugMockDependency<Dependency>(Dependency value) {
-    assert(_debugIsNotifierMounted());
+    assert(_debugIsNotifierMounted(), '');
     assert(() {
       final previousLocator = read;
       read = <Target>() {
-        assert(_debugIsNotifierMounted());
+        assert(_debugIsNotifierMounted(), '');
         if (Dependency == Target) {
           return value as Target;
         }
         return previousLocator<Target>();
       };
       return true;
-    }());
+    }(), '');
   }
 
   /// A life-cycle that allows initializing the [StateNotifier] based on values
@@ -392,7 +392,7 @@ mixin LocatorMixin {
         read = locator;
       }
       return true;
-    }());
+    }(), '');
   }
 }
 
