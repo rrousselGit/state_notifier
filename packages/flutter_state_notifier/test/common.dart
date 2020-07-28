@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+// ignore: undefined_hidden_name
 import 'package:provider/provider.dart' hide Locator;
 import 'package:state_notifier/state_notifier.dart';
 
