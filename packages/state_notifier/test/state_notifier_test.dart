@@ -365,6 +365,24 @@ void main() {
       expect(() => notifier.read, throwsStateError);
     });
   });
+
+  test(
+      '.stream returns a broadcast stream that updates when new values are pushed',
+      () async {
+    final notifier = TestNotifier(0);
+    final stream = notifier.stream;
+
+    // ignore: unawaited_futures
+    Future.microtask(() {
+      notifier..increment()..increment()..increment();
+    });
+
+    await expectLater(stream, emitsInOrder(<int>[1, 2, 3]));
+
+    notifier.dispose();
+
+    await expectLater(stream, emitsDone);
+  });
 }
 
 class TestNotifier extends StateNotifier<int> with LocatorMixin {

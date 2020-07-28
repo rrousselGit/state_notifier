@@ -1,3 +1,7 @@
+## [0.6.0] - 28/07/2020
+
+Added `StateNotifier.stream`, to listen to a `StateNotifier` using the `Stream` API.
+
 ## [0.5.0] - 4/06/2020
 
 If no `onError` is specified, errors are now reported to the current `Zone`.

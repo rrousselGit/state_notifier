@@ -41,36 +41,46 @@ typedef Locator = T Function<T>();
 /// An observable class that stores a single immutable [state].
 ///
 /// This class can be considered as a fork of `ValueNotifier` from Flutter, with
-/// subtle API changes.
+/// subtle API changes and performance improvements.
 ///
-/// # Reading the current [state]:
+/// It can be used as a drop-in replacement to `ChangeNotifier` or other equivalent
+/// objects like `Bloc`.
+/// Its particularity is that it tries to be simple, yet promote immutable data.
 ///
-/// The [state] property is protected and should be used only by the subclasses
-/// of [StateNotifier].\
-/// If you want to obtain the current [state] from outside of [StateNotifier],
-/// consider using [addListener] instead.
+/// ## Example: Counter
 ///
-/// All listeners added with [addListener] are called **immediately** on addition
-/// with the current [state] as parameter, or whenever [state] changes.
+/// [StateNotifier] is designed to be subclassed.
+/// We first need to pass an initial value to the `super` constructor, to define
+/// the initial state of our object.
 ///
-/// # The differences with `ValueNotifier`
+/// ```dart
+/// class Counter extends StateNotifier<int> {
+///   Counter(): super(0);
+/// }
+/// ```
 ///
-/// [StateNotifier] is not a one to one reimplementation of `ValueNotifier`.
-/// It has a few notable differences:
+/// We can then expose methods on our [StateNotifier] to allow other objects
+/// to modify the counter:
 ///
-/// - it does not depend on Flutter
-/// - both the getter and setter of [state] are protected.
-/// - adding and removing listeners is O(1) (vs O(N) for `ValueNotifier`)
-/// - there is no `notifyListeners` method.
-/// - listeners cannot add more listeners.
-/// - calling all listeners is O(N) (vs O(N^2) for `ValueNotifier`)
-/// - there is no `removeListener` function.
-///   Instead, [addListener] returns a function that allows removing the listener.
-/// - error reporting is done through [onError].
-/// - [StateNotifier] exposes a [mounted] boolean, to know if [dispose] was
-///   called or not.
-/// - listeners added with [addListener] receives the current [state] as parameter
-/// - calling [addListener] immediately calls the listener with the current [state].
+/// ```dart
+/// class Counter extends StateNotifier<int> {
+///   Counter(): super(0);
+///
+///   void increment() => state++;
+///   void decrement() => state--;
+/// }
+/// ```
+///
+/// assigning [state] to a new value will automatically notify the listeners
+/// and update the UI.
+///
+/// Then, the object can either be listened like with `StateNofierBuilder`/`StateNotifierProvider`
+/// using `package:flutter_state_notifier` or `package:riverpod`.
+/// 
+/// See also:
+/// 
+/// - [addListener], to manually listen to a [StateNotifier]
+/// - [state], to internally read and update the value exposed.
 abstract class StateNotifier<T> {
   /// Initialize [state].
   StateNotifier(this._state);
@@ -93,6 +103,14 @@ abstract class StateNotifier<T> {
 
   /// Whether [dispose] was called or not.
   bool get mounted => _mounted;
+
+  StreamController<T> _controller;
+
+  /// A broadcast stream representation of a [StateNotifier].
+  Stream<T> get stream {
+    _controller ??= StreamController<T>.broadcast();
+    return _controller.stream;
+  }
 
   bool _debugCanAddListeners = true;
 
@@ -123,6 +141,7 @@ Consider checking `mounted`.
   /// The current "state" of this [StateNotifier].
   ///
   /// Updating this variable will synchronously call all the listeners.
+  /// Notifying the listeners is O(N) with N the number of listeners.
   ///
   /// Updating the state will throw if at least one listener throws.
   @protected
@@ -131,25 +150,11 @@ Consider checking `mounted`.
     return _state;
   }
 
-  /// A development-only way to access [state] outside of [StateNotifier].
-  ///
-  /// The only difference with [state] is that [debugState] is not "protected".\
-  /// Will not work in release mode.
-  ///
-  /// This is useful for tests.
-  T get debugState {
-    T result;
-    assert(() {
-      result = _state;
-      return true;
-    }());
-    return result;
-  }
-
   @protected
   set state(T value) {
     assert(_debugIsMounted());
     _state = value;
+    _controller?.add(value);
 
     var didThrow = false;
     for (final listenerEntry in _listeners) {
@@ -169,6 +174,21 @@ Consider checking `mounted`.
     }
   }
 
+  /// A development-only way to access [state] outside of [StateNotifier].
+  ///
+  /// The only difference with [state] is that [debugState] is not "protected".\
+  /// Will not work in release mode.
+  ///
+  /// This is useful for tests.
+  T get debugState {
+    T result;
+    assert(() {
+      result = _state;
+      return true;
+    }());
+    return result;
+  }
+
   /// If a listener has been added using [addListener] and hasn't been removed yet.
   bool get hasListeners {
     assert(_debugIsMounted());
@@ -182,7 +202,6 @@ Consider checking `mounted`.
   /// Set [fireImmediately] to false if you want to skip the first,
   /// immediate execution of the [listener].
   ///
-  ///
   /// To remove this [listener], call the function returned by [addListener]:
   ///
   /// ```dart
@@ -193,7 +212,7 @@ Consider checking `mounted`.
   ///
   /// Listeners cannot add other listeners.
   ///
-  /// Adding and removing listeners is O(1).
+  /// Adding and removing listeners has a constant time-complexity.
   RemoveListener addListener(
     Listener<T> listener, {
     bool fireImmediately = true,
@@ -235,6 +254,7 @@ Consider checking `mounted`.
   void dispose() {
     assert(_debugIsMounted());
     _listeners.clear();
+    _controller?.close();
     _mounted = false;
   }
 }
