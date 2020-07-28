@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
+// ignore: undefined_hidden_name
 import 'package:provider/provider.dart' hide Locator;
 import 'package:state_notifier/state_notifier.dart';
 
@@ -65,6 +66,7 @@ class ErrorListener extends Mock {
 BuildContext get context => find.byType(Context).evaluate().single;
 
 class Context extends StatelessWidget {
+  const Context({Key key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container();
@@ -77,6 +79,7 @@ int buildCountOf<T extends TextConsumer<dynamic>>(T value) {
 }
 
 class TextConsumer<T> extends StatefulWidget {
+  const TextConsumer({Key key}) : super(key: key);
   @override
   _TextConsumerState<T> createState() => _TextConsumerState<T>();
 }

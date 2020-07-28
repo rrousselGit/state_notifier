@@ -19,7 +19,7 @@ dev_dependencies:
 
 dependency_overrides:
   flutter_state_notifier:
-    path: ../
+    path: ../packages/flutter_state_notifier
 
 flutter:
   uses-material-design: true

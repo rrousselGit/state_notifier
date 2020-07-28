@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:state_notifier/state_notifier.dart';
+// ignore: undefined_hidden_name
 import 'package:provider/provider.dart' hide Locator;
 
 /// {@template flutter_state_notifier.state_notifier_builder}
@@ -20,9 +21,7 @@ class StateNotifierBuilder<T> extends StatefulWidget {
     @required this.builder,
     @required this.stateNotifier,
     this.child,
-  })  : assert(builder != null),
-        assert(stateNotifier != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// A callback that builds a [Widget] based on the current value of [stateNotifier]
   ///
@@ -187,8 +186,7 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
     @required this.value,
     this.builder,
     Widget child,
-  })  : assert(value != null),
-        super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   final Controller value;
   final TransitionBuilder builder;
@@ -233,8 +231,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
     this.lazy,
     this.builder,
     Widget child,
-  })  : assert(create != null),
-        super(key: key, child: child);
+  }) : super(key: key, child: child);
 
   final Create<Controller> create;
   final bool lazy;
@@ -245,7 +242,12 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
     return InheritedProvider<Controller>(
       create: (context) {
         final result = create(context);
-        assert(result.onError == null);
+        assert(
+          result.onError == null,
+          'StateNotifierProvider created a StateNotifier that was already passed'
+          ' to another StateNotifierProvider',
+        );
+        // ignore: avoid_types_on_closure_parameters
         result.onError = (dynamic error, StackTrace stack) {
           FlutterError.reportError(FlutterErrorDetails(
             exception: error,
@@ -264,7 +266,11 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
       debugCheckInvalidValueType: kReleaseMode
           ? null
           : (value) {
-              assert(!value.hasListeners);
+              assert(
+                !value.hasListeners,
+                'StateNotifierProvider created a StateNotifier that is already'
+                ' being listened by something else',
+              );
             },
       update: (context, controller) {
         if (controller is LocatorMixin) {
@@ -277,13 +283,13 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
               throw StateError("Can't use `read` inside the body of `update");
             };
             return true;
-          }());
+          }(), '');
           // ignore: invalid_use_of_protected_member
           locatorMixin.update(<T>() => Provider.of<T>(context));
           assert(() {
             locatorMixin.read = debugPreviousLocator;
             return true;
-          }());
+          }(), '');
         }
         return controller;
       },
@@ -328,8 +334,6 @@ class _StateNotifierProviderElement<Controller extends StateNotifier<Value>,
     }
 
     visitChildren(visitor);
-
-    assert(provider != null);
 
     provider.debugFillProperties(properties);
   }

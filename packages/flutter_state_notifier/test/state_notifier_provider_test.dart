@@ -19,7 +19,7 @@ void main() {
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
         builder: (context, child) {
-          assert(child == expectedChild);
+          assert(child == expectedChild, '');
           return Text(
             Provider.of<int>(context).toString(),
             textDirection: TextDirection.ltr,
@@ -40,7 +40,7 @@ void main() {
       StateNotifierProvider<TestNotifier, int>.value(
         value: notifier,
         builder: (context, child) {
-          assert(child == expectedChild);
+          assert(child == expectedChild, '');
           return Text(
             Provider.of<int>(context).toString(),
             textDirection: TextDirection.ltr,
@@ -58,7 +58,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
-        child: Context(),
+        child: const Context(),
       ),
     );
 
@@ -74,15 +74,15 @@ void main() {
   testWidgets('rebuilds dependents', (tester) async {
     final notifier = TestNotifier(0);
 
-    final controller = TextConsumer<TestNotifier>();
-    final value = TextConsumer<int>();
+    const controller = TextConsumer<TestNotifier>();
+    const value = TextConsumer<int>();
 
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
         child: Column(
           textDirection: TextDirection.ltr,
-          children: <Widget>[
+          children: const <Widget>[
             controller,
             value,
           ],
@@ -107,7 +107,7 @@ void main() {
         create: (_) => notifier,
         child: Column(
           textDirection: TextDirection.ltr,
-          children: <Widget>[
+          children: const <Widget>[
             controller,
             value,
           ],
@@ -133,7 +133,7 @@ void main() {
           Provider(create: (_) => '42'),
           StateNotifierProvider<TestNotifier, int>(create: (_) => notifier),
         ],
-        child: TextConsumer<int>(),
+        child: const TextConsumer<int>(),
       ),
     );
 
@@ -158,7 +158,7 @@ void main() {
             create: (_) => notifier,
           ),
         ],
-        child: TextConsumer<int>(),
+        child: const TextConsumer<int>(),
       ),
     );
 
@@ -183,7 +183,7 @@ void main() {
     verifyZeroInteractions(initState);
     verifyZeroInteractions(update);
 
-    final child = TextConsumer<int>();
+    const child = TextConsumer<int>();
 
     await tester.pumpWidget(
       MultiProvider(
@@ -239,7 +239,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
-        child: TextConsumer<int>(),
+        child: const TextConsumer<int>(),
       ),
     );
 
@@ -255,7 +255,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
-        child: TextConsumer<int>(),
+        child: const TextConsumer<int>(),
       ),
     );
 
@@ -271,7 +271,7 @@ void main() {
         create: (_) => notifier,
         child: Column(
           textDirection: TextDirection.ltr,
-          children: <Widget>[
+          children: const <Widget>[
             TextConsumer<TestNotifier>(),
             TextConsumer<int>(),
           ],
@@ -282,7 +282,7 @@ void main() {
     expect(key.currentContext.toString(),
         startsWith('_StateNotifierProvider<TestNotifier, int>'));
     expect(key.currentContext.toString(),
-        endsWith('(controller: Instance of \'TestNotifier\', value: 0)'));
+        endsWith("(controller: Instance of 'TestNotifier', value: 0)"));
   });
 
   testWidgets('.value', (tester) async {
@@ -295,7 +295,7 @@ void main() {
         value: notifier,
         child: Column(
           textDirection: TextDirection.ltr,
-          children: <Widget>[
+          children: const <Widget>[
             TextConsumer<TestNotifier>(),
             TextConsumer<int>(),
           ],
@@ -306,21 +306,21 @@ void main() {
     expect(key.currentContext.toString(),
         startsWith('_StateNotifierProviderValue<TestNotifier, int>'));
     expect(key.currentContext.toString(),
-        endsWith('(controller: Instance of \'TestNotifier\', value: 0)'));
+        endsWith("(controller: Instance of 'TestNotifier', value: 0)"));
 
-    expect(find.text('Instance of \'TestNotifier\''), findsOneWidget);
+    expect(find.text("Instance of 'TestNotifier'"), findsOneWidget);
     expect(find.text('0'), findsOneWidget);
 
     notifier.increment();
     await tester.pump();
 
-    expect(find.text('Instance of \'TestNotifier\''), findsOneWidget);
+    expect(find.text("Instance of 'TestNotifier'"), findsOneWidget);
     expect(find.text('1'), findsOneWidget);
 
     expect(key.currentContext.toString(),
         startsWith('_StateNotifierProviderValue<TestNotifier, int>'));
     expect(key.currentContext.toString(),
-        endsWith('(controller: Instance of \'TestNotifier\', value: 1)'));
+        endsWith("(controller: Instance of 'TestNotifier', value: 1)"));
   });
 
   testWidgets('works', (tester) async {

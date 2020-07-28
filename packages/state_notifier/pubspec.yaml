@@ -1,7 +1,6 @@
 name: state_notifier
 description: ValueNotifier, but outside Flutter and with some extra perks
 version: 0.6.0
-author: Remi Rousselet <darky12s@gmail.com>
 homepage: https://github.com/rrousselGit/state_notifier
 
 environment:
@@ -13,4 +12,5 @@ dependencies:
 dev_dependencies:
   test: ^1.12.0
   mockito: ^4.1.1
+  test_coverage: ^0.4.1
   matcher: ^0.12.6
