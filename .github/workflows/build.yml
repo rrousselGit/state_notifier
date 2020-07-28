@@ -30,13 +30,6 @@ jobs:
         run: dart format --set-exit-if-changed .
         working-directory: ${{ matrix.package }}
 
-      # - name: Generate
-      #   run: |
-      #     if grep -q build_runner "pubspec.yaml"; then
-      #       dart pub run build_runner build --delete-conflicting-outputs
-      #     fi
-      #   working-directory: ${{ matrix.package }}
-
       - name: Analyze
         run: dart analyze
         working-directory: ${{ matrix.package }}
@@ -45,14 +38,9 @@ jobs:
         run: dart test
         working-directory: ${{ matrix.package }}
 
-      # - name: Coverage
-      #   run: |
-      #     if [ "${{ matrix.package }}" != "packages/state_notifier/example" ]; then
-      #       echo "run"
-      #       pwd
-      #       dart pub run test_coverage
-      #     fi
-      #   working-directory: ${{ matrix.package }}
+      - name: Coverage
+        run: dart pub run test_coverage
+        working-directory: ${{ matrix.package }}
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
@@ -94,12 +82,6 @@ jobs:
         run: flutter format --set-exit-if-changed .
         working-directory: ${{ matrix.package }}
 
-      # - name: Generate
-      #   run: |
-      #     if grep -q build_runner "pubspec.yaml"; then
-      #       flutter pub run build_runner build --delete-conflicting-outputs
-      #     fi
-
       - name: Analyze
         run: flutter analyze
         working-directory: ${{ matrix.package }}
@@ -110,5 +92,3 @@ jobs:
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
