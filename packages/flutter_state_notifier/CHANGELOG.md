@@ -1,3 +1,11 @@
+## 0.6.1
+
+Fixed a conflict between provider and state_notifier
+
+## 0.6.0
+
+Added `StateNotifier.stream`, to listen to a `StateNotifier` using the `Stream` API.
+
 ## 0.4.2
 
 - Fix the `builder` parameter of `StateNotifierProvider` not working
