@@ -29,6 +29,37 @@ void main() {
 
     expect(find.text('1'), findsOneWidget);
   });
+  testWidgets('rebuilds only when build condition is true', (tester) async {
+    final notifier = TestNotifier(0);
+    final child = Container();
+
+    await tester.pumpWidget(
+      StateNotifierBuilder<int>(
+        stateNotifier: notifier,
+        buildWhen: (state) => state % 2 == 0,
+        builder: (context, value, c) {
+          assert(context != null, '');
+          assert(child == c, '');
+          return Text('$value', textDirection: TextDirection.ltr);
+        },
+        child: child,
+      ),
+    );
+
+    expect(find.text('0'), findsOneWidget);
+
+    notifier.increment();
+
+    await tester.pump();
+
+    expect(find.text('1'), findsNothing);
+
+    notifier.increment();
+
+    await tester.pump();
+
+    expect(find.text('2'), findsOneWidget);
+  });
   testWidgets('disposes sub', (tester) async {
     final notifier = TestNotifier(0);
 

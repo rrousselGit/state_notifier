@@ -3,10 +3,12 @@ library flutter_state_notifier;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:meta/meta.dart';
-import 'package:provider/single_child_widget.dart';
-import 'package:state_notifier/state_notifier.dart';
 // ignore: undefined_hidden_name
 import 'package:provider/provider.dart' hide Locator;
+import 'package:provider/single_child_widget.dart';
+import 'package:state_notifier/state_notifier.dart';
+
+typedef BuildCondition<T> = bool Function(T state);
 
 /// {@template flutter_state_notifier.state_notifier_builder}
 /// Listens to a [StateNotifier] and use it builds a widget tree based on the
@@ -18,6 +20,7 @@ class StateNotifierBuilder<T> extends StatefulWidget {
   /// {@macro flutter_state_notifier.state_notifier_builder}
   const StateNotifierBuilder({
     Key key,
+    this.buildWhen,
     @required this.builder,
     @required this.stateNotifier,
     this.child,
@@ -27,6 +30,12 @@ class StateNotifierBuilder<T> extends StatefulWidget {
   ///
   /// Cannot be `null`.
   final ValueWidgetBuilder<T> builder;
+
+  /// Determines whether the [StateNotifierBuilder] should rebuild with the
+  /// current state of the [StateNotifier].
+  ///
+  /// [StateNotifierBuilder] will always rebuild when the [buildWhen] is null.
+  final BuildCondition<T> buildWhen;
 
   /// The listened [StateNotifier].
   ///
@@ -79,7 +88,9 @@ class _StateNotifierBuilderState<T> extends State<StateNotifierBuilder<T>> {
   }
 
   void _listener(T value) {
-    setState(() => state = value);
+    if (widget.buildWhen?.call(value) ?? true) {
+      setState(() => state = value);
+    }
   }
 
   @override
