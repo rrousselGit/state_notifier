@@ -8,9 +8,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  state_notifier: ^0.6.0
   flutter_state_notifier: ^0.6.0
   provider: ^4.1.0
+  state_notifier: ^0.6.0
 
 dev_dependencies:
   flutter_test:
@@ -20,6 +20,8 @@ dev_dependencies:
 dependency_overrides:
   flutter_state_notifier:
     path: ../
+  state_notifier:
+    path: ../../state_notifier
 
 flutter:
   uses-material-design: true
