@@ -97,19 +97,19 @@ abstract class StateNotifier<T> {
   /// your custom [state].
   ///
   /// If no [onError] is specified, fallbacks to [Zone.current.handleUncaughtError].
-  ErrorListener onError;
+  ErrorListener? onError;
 
   bool _mounted = true;
 
   /// Whether [dispose] was called or not.
   bool get mounted => _mounted;
 
-  StreamController<T> _controller;
+  StreamController<T>? _controller;
 
   /// A broadcast stream representation of a [StateNotifier].
   Stream<T> get stream {
     _controller ??= StreamController<T>.broadcast();
-    return _controller.stream;
+    return _controller!.stream;
   }
 
   bool _debugCanAddListeners = true;
@@ -163,7 +163,7 @@ Consider checking `mounted`.
       } catch (error, stackTrace) {
         didThrow = true;
         if (onError != null) {
-          onError(error, stackTrace);
+          onError!(error, stackTrace);
         } else {
           Zone.current.handleUncaughtError(error, stackTrace);
         }
@@ -180,8 +180,8 @@ Consider checking `mounted`.
   /// Will not work in release mode.
   ///
   /// This is useful for tests.
-  T get debugState {
-    T result;
+  T? get debugState {
+    T? result;
     assert(() {
       result = _state;
       return true;
