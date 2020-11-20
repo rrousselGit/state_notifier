@@ -19,7 +19,7 @@ jobs:
         channel:
           - dev
           # latest is stable release
-          - latest
+          - beta
 
     steps:
       - uses: actions/checkout@v2
@@ -65,7 +65,7 @@ jobs:
           - packages/flutter_state_notifier/example
         channel:
           - dev
-          - stable
+          - beta
 
     steps:
       - uses: actions/checkout@v2
