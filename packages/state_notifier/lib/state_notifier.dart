@@ -180,8 +180,8 @@ Consider checking `mounted`.
   /// Will not work in release mode.
   ///
   /// This is useful for tests.
-  T? get debugState {
-    T? result;
+  T get debugState {
+    late T result;
     assert(() {
       result = _state;
       return true;
