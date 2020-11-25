@@ -5,7 +5,7 @@ on:
   pull_request:
   schedule:
     # runs the CI everyday at 10AM
-    - cron:  '0 10 * * *'
+    - cron: "0 10 * * *"
 
 jobs:
   dart:
@@ -19,7 +19,7 @@ jobs:
         channel:
           - dev
           # latest is stable release
-          - latest
+          - beta
 
     steps:
       - uses: actions/checkout@v2
@@ -42,11 +42,11 @@ jobs:
         working-directory: ${{ matrix.package }}
 
       - name: Run tests
-        run: dart test
+        run: dart test --coverage coverage
         working-directory: ${{ matrix.package }}
 
       - name: Coverage
-        run: dart pub run test_coverage
+        run: dart run coverage:format_coverage -l -i ./coverage/test/state_notifier_test.dart.vm.json -o ./coverage/lcov.info --packages ./.packages
         working-directory: ${{ matrix.package }}
 
       - name: Upload coverage to codecov
@@ -65,7 +65,7 @@ jobs:
           - packages/flutter_state_notifier/example
         channel:
           - dev
-          - stable
+          - beta
 
     steps:
       - uses: actions/checkout@v2
