@@ -1,3 +1,7 @@
+## 0.7.0-nullsafety.0
+
+Migrated to non-nullable types
+
 ## [0.6.0] - 28/07/2020
 
 Added `StateNotifier.stream`, to listen to a `StateNotifier` using the `Stream` API.
