@@ -1,20 +1,20 @@
 name: flutter_state_notifier
 description: Flutter bindings for state_notifier, such as StateNotifierProvider and StateNotiferBuilder
-version: 0.6.1
+version: 0.7.0
 homepage: https://github.com/rrousselGit/state_notifier
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
   meta: ^1.1.8
-  provider: ">= 4.0.0 < 5.0.0"
-  state_notifier: 0.6.0
+  provider: ">=5.0.0-nullsafety.5 <6.0.0"
+  state_notifier: 0.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   matcher: ^0.12.6
-  mockito: ^4.1.1
+  mockito: ^5.0.0-nullsafety.0

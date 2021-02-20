@@ -14,8 +14,8 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
     state++;
   }
 
-  final void Function() onInitState;
-  final void Function(Locator watch) onUpdate;
+  final void Function()? onInitState;
+  final void Function(Locator watch)? onUpdate;
 
   @override
   // ignore: unnecessary_overrides, remvove protected
@@ -37,7 +37,7 @@ class Listener extends Mock {
 }
 
 class Update extends Mock {
-  Update([void Function(Locator watch) cb]) {
+  Update([void Function(Locator watch)? cb]) {
     if (cb != null) {
       when(call(any)).thenAnswer((realInvocation) {
         final locator = realInvocation.positionalArguments.first as Locator;
@@ -45,11 +45,11 @@ class Update extends Mock {
       });
     }
   }
-  void call(Locator watch);
+  void call(Locator? watch);
 }
 
 class InitState extends Mock {
-  InitState([void Function() cb]) {
+  InitState([void Function()? cb]) {
     if (cb != null) {
       when(call()).thenAnswer((realInvocation) {
         return cb();
@@ -66,7 +66,7 @@ class ErrorListener extends Mock {
 BuildContext get context => find.byType(Context).evaluate().single;
 
 class Context extends StatelessWidget {
-  const Context({Key key}) : super(key: key);
+  const Context({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Container();
@@ -79,7 +79,7 @@ int buildCountOf<T extends TextConsumer<dynamic>>(T value) {
 }
 
 class TextConsumer<T> extends StatefulWidget {
-  const TextConsumer({Key key}) : super(key: key);
+  const TextConsumer({Key? key}) : super(key: key);
   @override
   _TextConsumerState<T> createState() => _TextConsumerState<T>();
 }

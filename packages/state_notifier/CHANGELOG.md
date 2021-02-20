@@ -1,3 +1,7 @@
+## 0.7.0
+
+Stable release of null-safe `StateNotifier`
+
 ## 0.7.0-nullsafety.0
 
 Migrated to non-nullable types
