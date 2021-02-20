@@ -1,3 +1,7 @@
+## 0.7.0
+
+Migrated to null-safety.
+
 ## 0.6.1
 
 Fixed a conflict between provider and state_notifier

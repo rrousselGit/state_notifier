@@ -29,7 +29,7 @@ typedef RemoveListener = void Function();
 /// should not be used otherwise.\
 /// If you need an error status, consider adding an error property on
 /// your custom [StateNotifier.state].
-typedef ErrorListener = void Function(dynamic error, StackTrace stackTrace);
+typedef ErrorListener = void Function(Object error, StackTrace? stackTrace);
 
 /// A function that allows obtaining other objects.
 ///

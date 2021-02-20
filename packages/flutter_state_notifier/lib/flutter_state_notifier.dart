@@ -2,7 +2,6 @@ library flutter_state_notifier;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:meta/meta.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:state_notifier/state_notifier.dart';
 // ignore: undefined_hidden_name
@@ -17,9 +16,9 @@ import 'package:provider/provider.dart' hide Locator;
 class StateNotifierBuilder<T> extends StatefulWidget {
   /// {@macro flutter_state_notifier.state_notifier_builder}
   const StateNotifierBuilder({
-    Key key,
-    @required this.builder,
-    @required this.stateNotifier,
+    Key? key,
+    required this.builder,
+    required this.stateNotifier,
     this.child,
   }) : super(key: key);
 
@@ -37,7 +36,7 @@ class StateNotifierBuilder<T> extends StatefulWidget {
   ///
   /// It will be sent untouched to [builder]. This is useful for performance
   /// optimizations to not rebuild the entire widget tree if it isn't needed.
-  final Widget child;
+  final Widget? child;
 
   @override
   _StateNotifierBuilderState<T> createState() =>
@@ -56,8 +55,8 @@ class StateNotifierBuilder<T> extends StatefulWidget {
 }
 
 class _StateNotifierBuilderState<T> extends State<StateNotifierBuilder<T>> {
-  T state;
-  VoidCallback removeListener;
+  late T state;
+  VoidCallback? removeListener;
 
   @override
   void initState() {
@@ -154,11 +153,11 @@ abstract class StateNotifierProvider<Controller extends StateNotifier<Value>,
   ///
   /// `create` cannot be `null`.
   factory StateNotifierProvider({
-    Key key,
-    @required Create<Controller> create,
-    bool lazy,
-    TransitionBuilder builder,
-    Widget child,
+    Key? key,
+    required Create<Controller> create,
+    bool? lazy,
+    TransitionBuilder? builder,
+    Widget? child,
   }) = _StateNotifierProvider<Controller, Value>;
 
   /// Exposes an existing [StateNotifier] and its [value].
@@ -170,10 +169,10 @@ abstract class StateNotifierProvider<Controller extends StateNotifier<Value>,
   ///
   /// `value` cannot be `null`.
   factory StateNotifierProvider.value({
-    Key key,
-    @required Controller value,
-    TransitionBuilder builder,
-    Widget child,
+    Key? key,
+    required Controller value,
+    TransitionBuilder? builder,
+    Widget? child,
   }) = _StateNotifierProviderValue<Controller, Value>;
 }
 
@@ -182,17 +181,17 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
     implements StateNotifierProvider<Controller, Value> {
   // ignore: prefer_const_constructors_in_immutables
   _StateNotifierProviderValue({
-    Key key,
-    @required this.value,
+    Key? key,
+    required this.value,
     this.builder,
-    Widget child,
+    Widget? child,
   }) : super(key: key, child: child);
 
   final Controller value;
-  final TransitionBuilder builder;
+  final TransitionBuilder? builder;
 
   @override
-  Widget buildWithChild(BuildContext context, Widget child) {
+  Widget buildWithChild(BuildContext context, Widget? child) {
     return InheritedProvider.value(
       value: value,
       child: StateNotifierBuilder<Value>(
@@ -201,7 +200,7 @@ class _StateNotifierProviderValue<Controller extends StateNotifier<Value>,
           return Provider.value(
             value: state,
             child: builder != null //
-                ? Builder(builder: (c) => builder(c, child))
+                ? Builder(builder: (c) => builder!(c, child))
                 : child,
           );
         },
@@ -226,19 +225,19 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
     implements StateNotifierProvider<Controller, Value> {
   // ignore: prefer_const_constructors_in_immutables
   _StateNotifierProvider({
-    Key key,
-    @required this.create,
+    Key? key,
+    required this.create,
     this.lazy,
     this.builder,
-    Widget child,
+    Widget? child,
   }) : super(key: key, child: child);
 
   final Create<Controller> create;
-  final bool lazy;
-  final TransitionBuilder builder;
+  final bool? lazy;
+  final TransitionBuilder? builder;
 
   @override
-  Widget buildWithChild(BuildContext context, Widget child) {
+  Widget buildWithChild(BuildContext context, Widget? child) {
     return InheritedProvider<Controller>(
       create: (context) {
         final result = create(context);
@@ -248,7 +247,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
           ' to another StateNotifierProvider',
         );
         // ignore: avoid_types_on_closure_parameters
-        result.onError = (dynamic error, StackTrace stack) {
+        result.onError = (Object error, StackTrace? stack) {
           FlutterError.reportError(FlutterErrorDetails(
             exception: error,
             stack: stack,
@@ -274,8 +273,9 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
             },
       update: (context, controller) {
         if (controller is LocatorMixin) {
+          // ignore: cast_nullable_to_non_nullable
           final locatorMixin = controller as LocatorMixin;
-          Locator debugPreviousLocator;
+          late Locator debugPreviousLocator;
           assert(() {
             // ignore: invalid_use_of_protected_member
             debugPreviousLocator = locatorMixin.read;
@@ -291,7 +291,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
             return true;
           }(), '');
         }
-        return controller;
+        return controller!;
       },
       dispose: (_, controller) => controller.dispose(),
       child: DeferredInheritedProvider<Controller, Value>(
@@ -303,7 +303,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
           return controller.addListener(setState);
         },
         child: builder != null //
-            ? Builder(builder: (c) => builder(c, child))
+            ? Builder(builder: (c) => builder!(c, child))
             : child,
       ),
     );
@@ -323,7 +323,7 @@ class _StateNotifierProviderElement<Controller extends StateNotifier<Value>,
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
-    Element provider;
+    late Element provider;
 
     void visitor(Element e) {
       if (e.widget is InheritedProvider<Value>) {

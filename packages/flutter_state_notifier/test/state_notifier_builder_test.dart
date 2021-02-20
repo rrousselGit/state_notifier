@@ -13,7 +13,6 @@ void main() {
       StateNotifierBuilder<int>(
         stateNotifier: notifier,
         builder: (context, value, c) {
-          assert(context != null, '');
           assert(child == c, '');
           return Text('$value', textDirection: TextDirection.ltr);
         },
@@ -29,6 +28,7 @@ void main() {
 
     expect(find.text('1'), findsOneWidget);
   });
+
   testWidgets('disposes sub', (tester) async {
     final notifier = TestNotifier(0);
 

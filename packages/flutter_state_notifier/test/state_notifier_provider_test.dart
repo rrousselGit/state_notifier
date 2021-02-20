@@ -144,7 +144,7 @@ void main() {
     );
   });
   testWidgets("update can't use locator", (tester) async {
-    TestNotifier notifier;
+    late TestNotifier notifier;
     final update = Update((locator) {
       notifier.read<String>();
     });
@@ -165,12 +165,12 @@ void main() {
     expect(tester.takeException(), isStateError);
   });
   testWidgets('plugs update', (tester) async {
-    TestNotifier notifier;
-    String initValue;
+    late TestNotifier notifier;
+    String? initValue;
     final initState = InitState(() {
       initValue = notifier.read<String>();
     });
-    String updateValue;
+    String? updateValue;
     final update = Update((watch) {
       updateValue = watch<String>();
     });
@@ -246,7 +246,7 @@ void main() {
     expect(notifier.onError, isNotNull);
     expect(tester.takeException(), isNull);
 
-    notifier.onError(42, null);
+    notifier.onError!(42, null);
     expect(tester.takeException(), 42);
   });
   testWidgets('rejects StateNotifier with listeners', (tester) async {
