@@ -157,11 +157,13 @@ Consider checking `mounted`.
     _controller?.add(value);
 
     var didThrow = false;
+    var _error;
     for (final listenerEntry in _listeners) {
       try {
         listenerEntry.listener(value);
       } catch (error, stackTrace) {
         didThrow = true;
+        _error = error;
         if (onError != null) {
           onError!(error, stackTrace);
         } else {
@@ -170,7 +172,7 @@ Consider checking `mounted`.
       }
     }
     if (didThrow) {
-      throw Error();
+      throw _error;
     }
   }
 
