@@ -156,7 +156,7 @@ Consider checking `mounted`.
     _state = value;
     _controller?.add(value);
 
-    var _error;
+    Object? _error;
     for (final listenerEntry in _listeners) {
       try {
         listenerEntry.listener(value);
@@ -170,6 +170,7 @@ Consider checking `mounted`.
       }
     }
     if (_error != null) {
+      // ignore: only_throw_errors
       throw _error;
     }
   }
