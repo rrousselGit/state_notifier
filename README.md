@@ -33,9 +33,65 @@ While [ChangeNotifier] is simple, through its mutable nature, it can be harder t
 maintain as it grows larger.
 
 By using immutable state, it becomes a lot simpler to:
+
 - compare previous and new state
 - implement undo-redo mechanism
 - debug the application state
+
+## Good practices
+
+### **DON'T** update the state of a StateNotifier outside the notifier
+
+While you could technically write:
+
+```dart
+class Counter extends StateNotifier<int> {
+  Counter(): super(0);
+}
+
+final notifier = Counter();
+notifier.state++;
+```
+
+That is considered anti-pattern (and your IDE should show a warning).
+
+Only the [StateNotifier] should modify its state. Instead, prefer using a method:
+
+```dart
+class Counter extends StateNotifier<int> {
+  Counter(): super(0);
+
+  void increment() => state++:
+}
+
+final notifier = Counter();
+notifier.increment();
+```
+
+The goal is to centralize all the logic that modifies a [StateNotifier] within
+the [StateNotifier] itself.
+
+## FAQ
+
+### Why are listeners called when the new state is == to the previous state?
+
+You may realize that a [StateNotifier] does not use `==` to verify that
+the state has changed before notifying for changes.
+
+This behavior is voluntary, for performance reasons.
+
+The reasoning is that `StateNotifier` is typically used with complex objects,
+which often override `==` to perform a deep comparison.  
+But performing a deep comparison can be a costly operation, especially since
+it is common for the state to contain lists/maps.  
+Similarly, for complex states, it is rare that when calling `notifier.state = newState`,
+the new and previous states are the same.
+
+As such, instead of using `==`, [StateNotifier] relies on `identical` to compare
+objects.  
+This way, when using [StateNotifier] with simple states like `int`/enums, it will
+correctly filter identical states.  At the same time, this preserves performance
+on complex states, at `identical` will not perform a deep object comparison.
 
 ## Usage
 
@@ -132,7 +188,7 @@ class Counter extends StateNotifier<Count> with LocatorMixin {
 }
 ```
 
-This then gives you access to:
+That then gives you access to:
 
 - `read`, a function to obtain services
 - `update`, a new life-cycle that can be used to listen to changes on a service
@@ -219,39 +275,6 @@ test('increment and saves to local storage', () {
 ```
 
 **Note:** `LocatorMixin` only works on `StateNotifier`, if you try to use it on other classes by `with LocatorMixin` then it will not work.
-
-## Good practices
-
-### **DON'T** update the state of a StateNotifier outside the notifier
-
-While you could technically write:
-
-```dart
-class Counter extends StateNotifier<int> {
-  Counter(): super(0);
-}
-
-final notifier = Counter();
-notifier.state++;
-```
-
-That is considered anti-pattern (and your IDE should show a warning).
-
-Only the [StateNotifier] should modify its state. Instead, prefer using a method:
-
-```dart
-class Counter extends StateNotifier<int> {
-  Counter(): super(0);
-
-  void increment() => state++:
-}
-
-final notifier = Counter();
-notifier.increment();
-```
-
-The goal is to centralize all the logic that modifies a [StateNotifier] within
-the [StateNotifier] itself.
 
 [provider]: https://pub.dev/packages/provider
 [freezed]: https://pub.dev/packages/freezed

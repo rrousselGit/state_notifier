@@ -309,6 +309,20 @@ void main() {
     verifyNoMoreInteractions(onError);
   });
 
+  test('filters state update on identical state', () {
+    final notifier = TestNotifier(0);
+    final listener = Listener();
+
+    notifier.addListener(listener, fireImmediately: true);
+
+    verify(listener(0)).called(1);
+    verifyNoMoreInteractions(listener);
+
+    notifier.setState(0);
+
+    verifyNoMoreInteractions(listener);
+  });
+
   test('listeners cannot add listeners (intiial call)', () {
     final notifier = TestNotifier(0);
 
@@ -444,6 +458,11 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   void increment() {
     state++;
+  }
+
+  // ignore: use_setters_to_change_properties
+  void setState(int value) {
+    state = value;
   }
 
   String? lastInitString;

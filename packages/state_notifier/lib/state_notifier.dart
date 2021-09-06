@@ -200,6 +200,10 @@ Consider checking `mounted`.
   @protected
   set state(T value) {
     assert(_debugIsMounted(), '');
+    if (identical(_state, value)) {
+      return;
+    }
+
     _state = value;
     _controller?.add(value);
 

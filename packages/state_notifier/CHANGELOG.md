@@ -2,6 +2,7 @@
 
 - Improved the error when a listener of a `StateNotifier` throws to include
   the thrown error/stacktrace
+- `StateNotifier.state =` now filters updates using `identical`.
 
 ## 0.7.0
 
