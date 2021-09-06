@@ -1,6 +1,6 @@
 name: state_notifier
 description: ValueNotifier, but outside Flutter and with some extra perks
-version: 0.7.0
+version: 0.7.1
 homepage: https://github.com/rrousselGit/state_notifier
 
 environment:
