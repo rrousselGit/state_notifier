@@ -86,13 +86,14 @@ $buffer
 
 /// An observable class that stores a single immutable [state].
 ///
-/// This class can be considered as a fork of `ValueNotifier` from Flutter, with
-/// subtle API changes and performance improvements.
-///
 /// It can be used as a drop-in replacement to `ChangeNotifier` or other equivalent
 /// objects like `Bloc`.
 /// Its particularity is that it tries to be simple, yet promote immutable data.
 ///
+/// By using immutable state, it becomes a lot simpler to:
+/// - compare previous and new state
+/// - implement undo-redo mechanism
+/// - debug the application state
 /// ## Example: Counter
 ///
 /// [StateNotifier] is designed to be subclassed.
