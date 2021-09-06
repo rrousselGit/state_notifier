@@ -382,7 +382,10 @@ void main() {
 
     // ignore: unawaited_futures
     Future.microtask(() {
-      notifier..increment()..increment()..increment();
+      notifier
+        ..increment()
+        ..increment()
+        ..increment();
     });
 
     await expectLater(stream, emitsInOrder(<int>[1, 2, 3]));
