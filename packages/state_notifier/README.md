@@ -1,48 +1,178 @@
 [![pub package](https://img.shields.io/pub/v/state_notifier.svg)](https://pub.dartlang.org/packages/state_notifier)
 Welcome to **state_notifier**~
 
-This repository is a set of packages that reimplements [ValueNotifier] outside of Flutter.
+This package is a recommended solution for managing state when using [Provider] or [Riverpod].
 
-It is spread across two packages:
+Long story short, instead of extending [ChangeNotifier], extend [StateNotifier]:
 
-- `state_notifier`, a pure Dart package containing the reimplementation of [ValueNotifier].\
-  It comes with extra utilities for combining our "[ValueNotifier]" with [provider]
-  and to test it.
-- `flutter_notifier`, a binding between `state_notifier` and Flutter.\
-  It adds things like [ChangeNotifierProvider] from [provider], but compatible
-  with `state_notifier`.
+```dart
+class City {
+  City({required this.name, required this.population});
+  final String name;
+  final int population;
+}
 
-# Motivation
 
-Extracting [ValueNotifier] outside of Flutter in a separate
-package has two purposes:
+class CityNotifier extends StateNotifier<List<City>> {
+  CityNotifier() : super(const <City>[]);
 
-- It allows Dart packages with no dependency on Flutter to use these
-  classes.\
-  This means that we can use them on AngularDart for example.
-- It allows solving some common problems with the original [ChangeNotifier]/[ValueNotifier]
-  and/or their combination with [provider].
+  void addCity(City newCity) {
+    state = [
+      ...state,
+      newCity,
+    ];
+  }
+}
+```
 
-For example, by using `state_notifier` instead of the original [ValueNotifier], then
-you get:
+## Motivation
 
-- A significant simplification of the integration with [provider]
-- Simplified testing/mocking
-- Improved performances on `addListener` & `notifyListeners` equivalents.
-- Extra safety through small API changes
+The purpose of [StateNotifier] is to be a simple solution to control state in
+an immutable manner.  
+While [ChangeNotifier] is simple, through its mutable nature, it can be harder to
+maintain as it grows larger.
 
-# Integration with [provider]/service locators
+By using immutable state, it becomes a lot simpler to:
 
-[StateNotifier] is easily compatible with [provider] through an extra mixin: `LocatorMixin`.
+- compare previous and new state
+- implement undo-redo mechanism
+- debug the application state
 
-Consider a typical [StateNotifier] written like a [ValueNotifier]:
+## Good practices
+
+### **DON'T** update the state of a StateNotifier outside the notifier
+
+While you could technically write:
 
 ```dart
 class Counter extends StateNotifier<int> {
-  Counter(): super(0)
+  Counter(): super(0);
+}
+
+final notifier = Counter();
+notifier.state++;
+```
+
+That is considered anti-pattern (and your IDE should show a warning).
+
+Only the [StateNotifier] should modify its state. Instead, prefer using a method:
+
+```dart
+class Counter extends StateNotifier<int> {
+  Counter(): super(0);
+
+  void increment() => state++:
+}
+
+final notifier = Counter();
+notifier.increment();
+```
+
+The goal is to centralize all the logic that modifies a [StateNotifier] within
+the [StateNotifier] itself.
+
+## FAQ
+
+### Why are listeners called when the new state is == to the previous state?
+
+You may realize that a [StateNotifier] does not use `==` to verify that
+the state has changed before notifying for changes.
+
+This behavior is voluntary, for performance reasons.
+
+The reasoning is that `StateNotifier` is typically used with complex objects,
+which often override `==` to perform a deep comparison.  
+But performing a deep comparison can be a costly operation, especially since
+it is common for the state to contain lists/maps.  
+Similarly, for complex states, it is rare that when calling `notifier.state = newState`,
+the new and previous states are the same.
+
+As such, instead of using `==`, [StateNotifier] relies on `identical` to compare
+objects.  
+This way, when using [StateNotifier] with simple states like `int`/enums, it will
+correctly filter identical states.  At the same time, this preserves performance
+on complex states, at `identical` will not perform a deep object comparison.
+
+## Usage
+
+### Integration with Freezed
+
+While entirely optional, it is recommended to use [StateNotifier] in combination
+with [Freezed].  
+[Freezed] is a code-generation package for data-classes in Dart, which
+automatically generates methods like `copyWith` and add support for union-types.
+
+A typical example would be using [Freezed] to handle data vs error vs loading states.
+With its union-types, it can lead to a significant improvement in maintainability as,
+it:
+
+- ensures that your application will not enter illogical states
+  (such as both having a "data" and being in "loading" state)
+- ensures that logic handles all possible cases. Such as forcing to check
+  loading/error cases before trying to access the data.
+
+The idea is that, rather than defining the data, error and loading state in a single
+object like:
+
+```dart
+class MyState {
+  MyState(...);
+  final Data data;
+  final Object? error;
+  final bool loading;
+}
+```
+
+We can use Freezed to define it as:
+
+```dart
+@freezed
+class MyState {
+  factory MyState.data(Data data) = MyStateData;
+  factory MyState.error(Object? error) = MyStateError;
+  factory MyState.loading() = MyStateLoading;
+}
+```
+
+That voluntarily prevents us from doing:
+
+```dart
+void main() {
+  MyState state;
+  print(state.data);
+}
+```
+
+Instead, we can use the generated `map` method to handle the various cases:
+
+```dart
+void main() {
+  MyState state;
+  state.when(
+    data: (state) => print(state.data),
+    loading: (state) => print('loading'),
+    error: (state) => print('Error: ${state.error}'),
+  );
+}
+```
+
+### Integration with [provider]/service locators
+
+[StateNotifier] is easily compatible with [provider] through an extra mixin: `LocatorMixin`.
+
+Consider a typical [StateNotifier]:
+
+```dart
+class Count {
+  Count(this.count);
+  final int count;
+}
+
+class Counter extends StateNotifier<Count> {
+  Counter(): super(Count(0));
 
   void increment() {
-    state++;
+    state = Count(state.count + 1);
   }
 }
 ```
@@ -53,12 +183,12 @@ In this example, we may want to use `Provider.of`/`context.read` to connect our
 To do so, simply mix-in `LocatorMixin` as such:
 
 ```dart
-class Counter extends StateNotifier<int> with LocatorMixin {
+class Counter extends StateNotifier<Count> with LocatorMixin {
 // unchanged
 }
 ```
 
-This then gives you access to:
+That then gives you access to:
 
 - `read`, a function to obtain services
 - `update`, a new life-cycle that can be used to listen to changes on a service
@@ -67,13 +197,46 @@ We could use them to change our `Counter` incrementation to save the counter in
 a DB when incrementing the value:
 
 ```dart
-class Counter extends StateNotifier<int> {
-  Counter(): super(0)
+class Counter extends StateNotifier<Count> with LocatorMixin {
+  Counter(): super(Count(0))
 
   void increment() {
-    state++;
-    read<LocalStorage>().writeInt('count', state);
+    state = Count(state.count + 1);
+    read<LocalStorage>().writeInt('count', state.count);
   }
+}
+```
+
+Where `Counter` and `LocalStorage` are defined using `provider` this way:
+
+```dart
+void main() {
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(create: (_) => LocalStorage()),
+        StateNotifierProvider<Counter, Count>(create: (_) => Counter()),
+      ],
+      child: MyApp(),
+    ),
+  );
+}
+```
+
+Then, `Counter`/`Count` are consumed using your typical `context.watch`/`Consumer`/`context.select`/...:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  int count = context.watch<Count>().count;
+
+  return Scaffold(
+    body: Text('$count'),
+    floatingActionButton: FloatingActionButton(
+      onPressed: () => context.read<Counter>().increment(),
+      child: Icon(Icons.add),
+    ),
+  );
 }
 ```
 
@@ -111,28 +274,13 @@ test('increment and saves to local storage', () {
 });
 ```
 
-# Differences with [ValueNotifier]
-
-This is not a one-to-one reimplementation of [ValueNotifier]. It has some
-differences:
-
-- [ValueNotifier] is instead named [StateNotifier] (to avoid name clash)
-- `ValueNotifier.value` is renamed to `state`, to match the class name
-- [StateNotifier] is abstract
-- `state` is `@protected`
-- The listener passed to `addListener` receives the current `state`, and is called
-  synchronously on addition.
-- `addListener` and `removeListener` are fused in a single `addListener` function
-  which returns a function to remove the listener.\
-  This makes adding and removing listeners O(1) versus O(N) for [ValueNotifier].
-- listeners cannot add extra listeners.\
-  This makes notifying listeners O(N) versus O(N²) for [ValueNotifier]
-- offers a `mounted` boolean to know if the [StateNotifier] was disposed or not,
-  similar to `State`.
+**Note:** `LocatorMixin` only works on `StateNotifier`, if you try to use it on other classes by `with LocatorMixin` then it will not work.
 
 [provider]: https://pub.dev/packages/provider
+[freezed]: https://pub.dev/packages/freezed
+[riverpod]: https://pub.dev/packages/riverpod
 [changenotifierprovider]: https://pub.dev/documentation/provider/latest/provider/ChangeNotifierProvider-class.html
 [statenotifier]: https://pub.dev/documentation/state_notifier/latest/state_notifier/StateNotifier-class.html
-[LocatorMixin]: https://pub.dev/documentation/state_notifier/latest/state_notifier/LocatorMixin-class.html
+[locatormixin]: https://pub.dev/documentation/state_notifier/latest/state_notifier/LocatorMixin-class.html
 [valuenotifier]: https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html
 [changenotifier]: https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html
