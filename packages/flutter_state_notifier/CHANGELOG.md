@@ -1,6 +1,8 @@
 ## 0.7.1
 
 - Update dependencies
+- Improved the error when a listener of a `StateNotifier` throws to include
+  the thrown error/stacktrace
 
 ## 0.7.0
 

@@ -11,10 +11,9 @@ dependencies:
     sdk: flutter
   meta: ^1.1.8
   provider: ^6.0.0
-  state_notifier: 0.7.0
+  state_notifier: ^0.7.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  matcher: ^0.12.6
-  mockito: ^5.0.0-nullsafety.0
+  mockito: ^5.0.0

@@ -1,4 +1,3 @@
-// @dart=2.9
 import 'dart:async';
 
 import 'package:mockito/mockito.dart';
@@ -9,6 +8,26 @@ Matcher throwsDependencyNotFound<T>() {
   return throwsA(isA<DependencyNotFoundException<T>>());
 }
 
+Matcher throwsStateNotifierListenerError({
+  List<Object>? errors,
+  List<Object>? stackTraces,
+  Object? notifier,
+}) {
+  var matcher = isA<StateNotifierListenerError>();
+
+  if (errors != null) {
+    matcher = matcher.having((e) => e.errors, 'errors', errors);
+  }
+  if (stackTraces != null) {
+    matcher = matcher.having((e) => e.stackTraces, 'stackTraces', stackTraces);
+  }
+  if (notifier != null) {
+    matcher = matcher.having((e) => e.stateNotifier, 'notifier', notifier);
+  }
+
+  return throwsA(matcher);
+}
+
 void main() {
   test('initialize state with default value', () {
     expect(TestNotifier(0).currentState, 0);
@@ -16,18 +35,22 @@ void main() {
     expect(TestNotifier(0).debugState, 0);
     expect(TestNotifier(42).debugState, 42);
   });
+
   test('setter modifies the value', () {
     final notifier = TestNotifier(0);
 
     expect(notifier.currentState, 0);
     expect(notifier.debugState, 0);
+
     notifier.increment();
     expect(notifier.currentState, 1);
     expect(notifier.debugState, 1);
+
     notifier.increment();
     expect(notifier.currentState, 2);
     expect(notifier.debugState, 2);
   });
+
   test('listener called immediatly on addition + synchronously on value change',
       () {
     final notifier = TestNotifier(0);
@@ -43,6 +66,7 @@ void main() {
     verify(listener(1)).called(1);
     verifyNoMoreInteractions(listener);
   });
+
   test(
       'listener not called immediately on addition if fireImmediately is false',
       () {
@@ -59,16 +83,18 @@ void main() {
     verify(listener(1)).called(1);
     verifyNoMoreInteractions(listener);
   });
+
   test('listener is called after the value is updated', () {
     final notifier = TestNotifier(0);
 
-    int lastValue;
+    int? lastValue;
     notifier
       ..addListener((value) => lastValue = value)
       ..increment();
 
     expect(lastValue, 1);
   });
+
   test('listener can be removed using addListener result', () {
     final notifier = TestNotifier(0);
     final listener = Listener();
@@ -162,6 +188,7 @@ void main() {
     removeListener2();
     expect(notifier.hasListeners, isFalse);
   });
+
   test('dispose', () {
     final notifier = TestNotifier(0);
     final listener = Listener();
@@ -184,6 +211,7 @@ void main() {
 
     removeListener();
   });
+
   test('mounted', () {
     final notifier = TestNotifier(0);
 
@@ -193,6 +221,7 @@ void main() {
 
     expect(notifier.mounted, isFalse);
   });
+
   test('addListener immediatly throws does not add the listener', () {
     final notifier = TestNotifier(0);
     final listener = Listener();
@@ -207,6 +236,7 @@ void main() {
 
     verifyNoMoreInteractions(listener);
   });
+
   test('onError (initial)', () {
     final onError = ErrorListener();
     final notifier = TestNotifier(0)..onError = onError;
@@ -215,15 +245,14 @@ void main() {
 
     final error = Error();
     expect(
-      () => notifier.addListener((state) {
-        throw error;
-      }),
+      () => notifier.addListener((state) => throw error),
       throwsA(error),
     );
 
     verify(onError(error, argThat(isNotNull))).called(1);
     verifyNoMoreInteractions(onError);
   });
+
   test('no onError fallbacks to zone', () {
     final notifier = TestNotifier(0)
       ..addListener((v) {
@@ -246,6 +275,7 @@ void main() {
       isA<Error>(),
     ]);
   });
+
   test('onError (change)', () {
     final onError = ErrorListener();
     final notifier = TestNotifier(0)
@@ -263,7 +293,14 @@ void main() {
 
     verifyZeroInteractions(onError);
 
-    expect(notifier.increment, throwsA(isA<Error>()));
+    expect(
+      notifier.increment,
+      throwsStateNotifierListenerError(
+        errors: [isStateError, isArgumentError],
+        stackTraces: [anything, anything],
+        notifier: notifier,
+      ),
+    );
 
     verifyInOrder([
       onError(argThat(isA<StateError>()), argThat(isNotNull)),
@@ -271,6 +308,7 @@ void main() {
     ]);
     verifyNoMoreInteractions(onError);
   });
+
   test('listeners cannot add listeners (intiial call)', () {
     final notifier = TestNotifier(0);
 
@@ -293,6 +331,7 @@ void main() {
     verify(listener(1)).called(1);
     verifyNoMoreInteractions(listener);
   });
+
   test('listeners cannot add listeners (update)', () {
     final notifier = TestNotifier(0);
 
@@ -316,12 +355,14 @@ void main() {
     verify(listener(2)).called(1);
     verifyNoMoreInteractions(listener);
   });
+
   test('read throws by default', () {
     expect(
       () => TestNotifier(0).read<int>(),
       throwsDependencyNotFound<int>(),
     );
   });
+
   test('debugUpdate calls initState+update and disables read', () {
     final notifier = TestNotifier(0)..debugMockDependency('42');
 
@@ -405,11 +446,11 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
     state++;
   }
 
-  String lastInitString;
+  String? lastInitString;
 
   @override
   void initState() {
-    lastInitString = read();
+    lastInitString = read<String>();
   }
 
   @override
@@ -418,8 +459,8 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
     lastUpdateString = watch<String>();
   }
 
-  Locator lastUpdateRead;
-  String lastUpdateString;
+  Locator? lastUpdateRead;
+  String? lastUpdateString;
 
   @override
   // ignore: unnecessary_overrides, remove protected
@@ -431,5 +472,5 @@ class Listener extends Mock {
 }
 
 class ErrorListener extends Mock {
-  void call(dynamic error, StackTrace stackTrace);
+  void call(Object? error, StackTrace? stackTrace);
 }

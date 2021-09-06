@@ -1,5 +1,5 @@
-import 'package:state_notifier/state_notifier.dart';
 import 'package:meta/meta.dart';
+import 'package:state_notifier/state_notifier.dart';
 
 // A Counter example using StateNotifier
 // It also uses an external Logger class to log any state change.

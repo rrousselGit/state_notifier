@@ -2,10 +2,10 @@ library flutter_state_notifier;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:provider/single_child_widget.dart';
-import 'package:state_notifier/state_notifier.dart';
 // ignore: undefined_hidden_name
 import 'package:provider/provider.dart' hide Locator;
+import 'package:provider/single_child_widget.dart';
+import 'package:state_notifier/state_notifier.dart';
 
 /// {@template flutter_state_notifier.state_notifier_builder}
 /// Listens to a [StateNotifier] and use it builds a widget tree based on the

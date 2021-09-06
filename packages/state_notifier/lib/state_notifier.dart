@@ -38,6 +38,52 @@ typedef ErrorListener = void Function(Object error, StackTrace? stackTrace);
 /// May throw a [DependencyNotFoundException].
 typedef Locator = T Function<T>();
 
+/// An error thrown when tried to update the state of a [StateNotifier],
+/// but at least of the listeners threw.
+@sealed
+class StateNotifierListenerError extends Error {
+  StateNotifierListenerError._(
+    this.errors,
+    this.stackTraces,
+    this.stateNotifier,
+  ) : assert(
+          errors.length == stackTraces.length,
+          'errors and stackTraces must match',
+        );
+
+  /// A map of all the errors and their stacktraces thrown by listeners.
+  final List<Object> errors;
+
+  /// The stacktraces associated with [errors].
+  final List<StackTrace?> stackTraces;
+
+  /// The [StateNotifier] that failed to update its state.
+  final StateNotifier<Object?> stateNotifier;
+
+  @override
+  String toString() {
+    final buffer = StringBuffer();
+
+    for (var i = 0; i < errors.length; i++) {
+      final error = errors[i];
+      final stackTrace = stackTraces[i];
+
+      buffer
+        ..writeln(error)
+        ..writeln(stackTrace);
+    }
+
+    return '''
+At least listener of the StateNotifier $stateNotifier threw an exception
+when the notifier tried to update its state.
+
+The exceptions thrown are:
+
+$buffer
+''';
+  }
+}
+
 /// An observable class that stores a single immutable [state].
 ///
 /// This class can be considered as a fork of `ValueNotifier` from Flutter, with
@@ -156,12 +202,15 @@ Consider checking `mounted`.
     _state = value;
     _controller?.add(value);
 
-    var didThrow = false;
+    final errors = <Object>[];
+    final stackTraces = <StackTrace?>[];
     for (final listenerEntry in _listeners) {
       try {
         listenerEntry.listener(value);
       } catch (error, stackTrace) {
-        didThrow = true;
+        errors.add(error);
+        stackTraces.add(stackTrace);
+
         if (onError != null) {
           onError!(error, stackTrace);
         } else {
@@ -169,8 +218,8 @@ Consider checking `mounted`.
         }
       }
     }
-    if (didThrow) {
-      throw Error();
+    if (errors.isNotEmpty) {
+      throw StateNotifierListenerError._(errors, stackTraces, this);
     }
   }
 

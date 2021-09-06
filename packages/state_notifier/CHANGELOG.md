@@ -1,3 +1,8 @@
+## 0.7.1
+
+- Improved the error when a listener of a `StateNotifier` throws to include
+  the thrown error/stacktrace
+
 ## 0.7.0
 
 Stable release of null-safe `StateNotifier`
