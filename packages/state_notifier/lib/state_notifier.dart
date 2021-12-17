@@ -121,7 +121,7 @@ $buffer
 /// assigning [state] to a new value will automatically notify the listeners
 /// and update the UI.
 ///
-/// Then, the object can either be listened like with `StateNofierBuilder`/`StateNotifierProvider`
+/// Then, the object can either be listened like with `StateNotifierBuilder`/`StateNotifierProvider`
 /// using `package:flutter_state_notifier` or `package:riverpod`.
 ///
 /// See also:
@@ -197,10 +197,16 @@ Consider checking `mounted`.
     return _state;
   }
 
+  /// decide should notify listeners or not before each update
+  @protected
+  bool updateShouldNotify(T old, T current) {
+    return !identical(_state, current);
+  }
+
   @protected
   set state(T value) {
     assert(_debugIsMounted(), '');
-    if (identical(_state, value)) {
+    if (!updateShouldNotify(_state, value)) {
       return;
     }
 
