@@ -50,8 +50,26 @@ void main() {
     expect(notifier.currentState, 2);
     expect(notifier.debugState, 2);
   });
+  test('it does not update if the updateShouldNotify returned false', () {
+    final notifier = TestNotifier(0);
 
-  test('listener called immediatly on addition + synchronously on value change',
+    expect(notifier.currentState, 0);
+    notifier.increment();
+
+    expect(notifier.currentState, 1);
+
+    notifier.decrement();
+
+    /// still have the old state
+    expect(
+      notifier.currentState,
+      1,
+      reason: 'updateShouldNotify returned false',
+    );
+  });
+
+  test(
+      'listener called immediately on addition + synchronously on value change',
       () {
     final notifier = TestNotifier(0);
     final listener = Listener();
@@ -222,7 +240,7 @@ void main() {
     expect(notifier.mounted, isFalse);
   });
 
-  test('addListener immediatly throws does not add the listener', () {
+  test('addListener immediately throws does not add the listener', () {
     final notifier = TestNotifier(0);
     final listener = Listener();
 
@@ -323,7 +341,7 @@ void main() {
     verifyNoMoreInteractions(listener);
   });
 
-  test('listeners cannot add listeners (intiial call)', () {
+  test('listeners cannot add listeners (initial call)', () {
     final notifier = TestNotifier(0);
 
     expect(
@@ -456,10 +474,9 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   int get currentState => state;
 
-  void increment() {
-    state++;
-  }
+  void increment() => state++;
 
+  void decrement() => state--;
   // ignore: use_setters_to_change_properties
   void setState(int value) {
     state = value;
@@ -480,6 +497,12 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   Locator? lastUpdateRead;
   String? lastUpdateString;
+
+  @override
+  bool updateShouldNotify(int old, int current) {
+    /// only update if the new state is greeter than the old state
+    return current > old;
+  }
 
   @override
   // ignore: unnecessary_overrides, remove protected
