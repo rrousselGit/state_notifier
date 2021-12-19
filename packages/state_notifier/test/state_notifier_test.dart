@@ -50,23 +50,6 @@ void main() {
     expect(notifier.currentState, 2);
     expect(notifier.debugState, 2);
   });
-  test('it does not update if the updateShouldNotify returned false', () {
-    final notifier = TestNotifier(0);
-
-    expect(notifier.currentState, 0);
-    notifier.increment();
-
-    expect(notifier.currentState, 1);
-
-    notifier.decrement();
-
-    /// still have the old state
-    expect(
-      notifier.currentState,
-      1,
-      reason: 'updateShouldNotify returned false',
-    );
-  });
 
   test(
       'listener called immediately on addition + synchronously on value change',
@@ -476,7 +459,6 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   void increment() => state++;
 
-  void decrement() => state--;
   // ignore: use_setters_to_change_properties
   void setState(int value) {
     state = value;
@@ -497,12 +479,6 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   Locator? lastUpdateRead;
   String? lastUpdateString;
-
-  @override
-  bool updateShouldNotify(int old, int current) {
-    /// only update if the new state is greeter than the old state
-    return current > old;
-  }
 
   @override
   // ignore: unnecessary_overrides, remove protected
