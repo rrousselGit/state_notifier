@@ -101,9 +101,9 @@ You can override the method `updateShouldNotify(T old,T current)` of a `StateNot
 
 ```dart
   @override
-  bool updateShouldNotify(int old, int current) {
-    /// only update if the new state is not equal to the old state
-    return current != old;
+  bool updateShouldNotify(User old, User current) {
+    /// only update the User content changes, even if using a different instance
+    return old.name != current.name && old.age != current.age;
   }
 ```
 
