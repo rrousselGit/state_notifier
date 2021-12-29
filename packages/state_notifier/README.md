@@ -93,7 +93,7 @@ This way, when using [StateNotifier] with simple states like `int`/enums, it wil
 correctly filter identical states. At the same time, this preserves performance
 on complex states, at `identical` will not perform a deep object comparison.
 
-### can i override this behavior ?
+### Using a custom notification filter logic
 
 yes by overriding `updateShouldNotify(T old,T current)`
 
