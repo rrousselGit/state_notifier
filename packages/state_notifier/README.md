@@ -95,7 +95,9 @@ on complex states, at `identical` will not perform a deep object comparison.
 
 ### Using a custom notification filter logic
 
-yes by overriding `updateShouldNotify(T old,T current)`
+You can override the method `updateShouldNotify(T old,T current)` of a `StateNotifier` to change the default behaviour, such as for:
+- using `==` instead of `identical` to filter updates, for deep state comparison
+- always return `true` to revert to older behaviors of `StateNotifier`
 
 ```dart
   @override
