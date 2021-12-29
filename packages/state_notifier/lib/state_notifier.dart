@@ -197,7 +197,7 @@ Consider checking `mounted`.
     return _state;
   }
 
-  /// decide should notify listeners or not before each update
+  /// Whether to notify listeners or not when [state] changes
   @protected
   bool updateShouldNotify(T old, T current) {
     return !identical(_state, current);
