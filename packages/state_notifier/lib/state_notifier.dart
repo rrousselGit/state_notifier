@@ -199,14 +199,20 @@ Consider checking `mounted`.
 
   /// Whether to notify listeners or not when [state] changes
   @protected
-  bool updateShouldNotify(T old, T current) {
-    return !identical(_state, current);
-  }
+  bool updateShouldNotify(
+    T old,
+    T current,
+  ) =>
+      !identical(_state, current);
 
   @protected
   set state(T value) {
     assert(_debugIsMounted(), '');
+
+    /// only notify listeners when should
     if (!updateShouldNotify(_state, value)) {
+      /// updates the `state` weather and do not notify
+      _state = value;
       return;
     }
 

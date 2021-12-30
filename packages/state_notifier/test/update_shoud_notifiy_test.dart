@@ -18,21 +18,45 @@ class TestNotifier extends StateNotifier<int> {
 }
 
 void main() {
-  test('it does not update if the updateShouldNotify returned false', () {
-    final notifier = TestNotifier(0);
+  test(
+    'it updates and does not notify when updateShouldNotify return false',
+    () {
+      final notifier = TestNotifier(0);
 
-    expect(notifier.currentState, 0);
-    notifier.increment();
+      /// initial state
+      expect(notifier.currentState, 0);
 
-    expect(notifier.currentState, 1);
+      /// incrementing the state will always notify
+      notifier.increment();
+      expect(notifier.currentState, 1);
 
-    notifier.decrement();
+      /// to check if the update notified or not
+      var listenerCalled = false;
 
-    /// still have the old state
-    expect(
-      notifier.currentState,
-      1,
-      reason: 'updateShouldNotify returned false',
-    );
-  });
+      /// since `addListener` immediately calls with the last state
+      /// we need to skip the first one
+      var firstCall = true;
+      notifier.addListener((state) {
+        if (firstCall) {
+          firstCall = false;
+        } else {
+          listenerCalled = true;
+        }
+      });
+      notifier.decrement();
+
+      expect(
+        notifier.currentState,
+        0,
+        reason:
+            'the state changes even though the updateShouldNotify returned false',
+      );
+      expect(
+        listenerCalled,
+        isFalse,
+        reason:
+            'since `UpdateShouldNotify` returned false, the listener should not be called',
+      );
+    },
+  );
 }
