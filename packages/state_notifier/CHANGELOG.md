@@ -1,3 +1,7 @@
+## 0.7.2
+
+- Added `StateNotifier.updateShouldNotify` for customizing notification filtering (thanks to @maxzod)
+
 ## 0.7.1
 
 - Improved the error when a listener of a `StateNotifier` throws to include
