@@ -53,7 +53,7 @@ void main() {
   );
 
   test(
-    'update should notify receive to different refs',
+    'update should notify receive two different refs',
     () {
       // will notify if not identical
       final notifier = FakeTestNotifier();
