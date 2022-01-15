@@ -1,5 +1,3 @@
-import 'package:flutter/src/widgets/basic.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
