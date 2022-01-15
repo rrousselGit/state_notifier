@@ -76,7 +76,7 @@ the [StateNotifier] itself.
 ### Why are listeners called when the new state is == to the previous state?
 
 You may realize that a [StateNotifier] does not use `==` to verify that
-the state has changed before notifying for changes.
+the state has changed before notifying for changes .
 
 This behavior is voluntary, for performance reasons.
 
@@ -90,8 +90,22 @@ the new and previous states are the same.
 As such, instead of using `==`, [StateNotifier] relies on `identical` to compare
 objects.  
 This way, when using [StateNotifier] with simple states like `int`/enums, it will
-correctly filter identical states.  At the same time, this preserves performance
+correctly filter identical states. At the same time, this preserves performance
 on complex states, at `identical` will not perform a deep object comparison.
+
+### Using a custom notification filter logic
+
+You can override the method `updateShouldNotify(T old,T current)` of a `StateNotifier` to change the default behaviour, such as for:
+- using `==` instead of `identical` to filter updates, for deep state comparison
+- always return `true` to revert to older behaviors of `StateNotifier`
+
+```dart
+  @override
+  bool updateShouldNotify(User old, User current) {
+    /// only update the User content changes, even if using a different instance
+    return old.name != current.name && old.age != current.age;
+  }
+```
 
 ## Usage
 

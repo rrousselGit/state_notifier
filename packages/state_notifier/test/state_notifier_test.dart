@@ -51,7 +51,8 @@ void main() {
     expect(notifier.debugState, 2);
   });
 
-  test('listener called immediatly on addition + synchronously on value change',
+  test(
+      'listener called immediately on addition + synchronously on value change',
       () {
     final notifier = TestNotifier(0);
     final listener = Listener();
@@ -222,7 +223,7 @@ void main() {
     expect(notifier.mounted, isFalse);
   });
 
-  test('addListener immediatly throws does not add the listener', () {
+  test('addListener immediately throws does not add the listener', () {
     final notifier = TestNotifier(0);
     final listener = Listener();
 
@@ -323,7 +324,7 @@ void main() {
     verifyNoMoreInteractions(listener);
   });
 
-  test('listeners cannot add listeners (intiial call)', () {
+  test('listeners cannot add listeners (initial call)', () {
     final notifier = TestNotifier(0);
 
     expect(
@@ -456,9 +457,7 @@ class TestNotifier extends StateNotifier<int> with LocatorMixin {
 
   int get currentState => state;
 
-  void increment() {
-    state++;
-  }
+  void increment() => state++;
 
   // ignore: use_setters_to_change_properties
   void setState(int value) {
