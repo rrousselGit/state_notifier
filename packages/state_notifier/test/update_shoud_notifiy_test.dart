@@ -23,6 +23,12 @@ class TestNotifier extends StateNotifier<int> with Mock {
   }
 }
 
+class FakeTestNotifier extends StateNotifier<int> {
+  FakeTestNotifier() : super(0);
+
+  void increment() => state++;
+}
+
 void main() {
   test(
     'it updates and does not notify when updateShouldNotify return false',
@@ -43,6 +49,26 @@ void main() {
 
       verifyNoMoreInteractions(listener);
       expect(notifier.debugState, 0);
+    },
+  );
+
+  test(
+    'update should notify receive to different refs',
+    () {
+      // will notify if not identical
+      final notifier = FakeTestNotifier();
+      var callCount = 0;
+      notifier.addListener((state) {
+        // this should be called
+        callCount++;
+      });
+      notifier.increment();
+      expect(
+        callCount,
+        2,
+        reason:
+            'updateShouldNotify receive to different parameters with two different reference in memory',
+      );
     },
   );
 }

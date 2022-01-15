@@ -203,7 +203,7 @@ Consider checking `mounted`.
     T old,
     T current,
   ) =>
-      !identical(_state, current);
+      !identical(old, current);
 
   @protected
   set state(T value) {
