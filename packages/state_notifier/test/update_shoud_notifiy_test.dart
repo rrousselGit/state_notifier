@@ -57,18 +57,17 @@ void main() {
     () {
       // will notify if not identical
       final notifier = FakeTestNotifier();
-      var callCount = 0;
-      notifier.addListener((state) {
-        // this should be called
-        callCount++;
-      });
+      final listener = Listener();
+
+      notifier.addListener(listener);
+
+      verify(listener(0));
+      verifyNoMoreInteractions(listener);
+
       notifier.increment();
-      expect(
-        callCount,
-        2,
-        reason:
-            'updateShouldNotify receive to different parameters with two different reference in memory',
-      );
+
+      verify(listener(1));
+      verifyNoMoreInteractions(listener);
     },
   );
 }
