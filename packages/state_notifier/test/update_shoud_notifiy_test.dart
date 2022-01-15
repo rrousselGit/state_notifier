@@ -1,7 +1,11 @@
-import 'package:state_notifier/state_notifier.dart';
+import 'package:mockito/mockito.dart';
+import 'package:state_notifier/state_notifier.dart' hide Listener;
 import 'package:test/test.dart';
 
-class TestNotifier extends StateNotifier<int> {
+import 'state_notifier_test.dart';
+
+// ignore: prefer_mixin
+class TestNotifier extends StateNotifier<int> with Mock {
   TestNotifier(int state) : super(state);
 
   int get currentState => state;
@@ -12,8 +16,10 @@ class TestNotifier extends StateNotifier<int> {
 
   @override
   bool updateShouldNotify(int old, int current) {
-    /// only update if the new state is greeter than the old state
-    return current > old;
+    return super.noSuchMethod(
+      Invocation.method(#updateShouldNotify, [old, current]),
+      returnValue: false,
+    ) as bool;
   }
 }
 
@@ -22,41 +28,21 @@ void main() {
     'it updates and does not notify when updateShouldNotify return false',
     () {
       final notifier = TestNotifier(0);
+      when(notifier.updateShouldNotify(0, 1)).thenReturn(true);
+      when(notifier.updateShouldNotify(1, 0)).thenReturn(false);
+      final listener = Listener();
 
-      /// initial state
-      expect(notifier.currentState, 0);
+      notifier.addListener(listener, fireImmediately: false);
+      verifyZeroInteractions(listener);
 
-      /// incrementing the state will always notify
       notifier.increment();
-      expect(notifier.currentState, 1);
 
-      /// to check if the update notified or not
-      var listenerCalled = false;
+      verify(listener(1));
 
-      /// since `addListener` immediately calls with the last state
-      /// we need to skip the first one
-      var firstCall = true;
-      notifier.addListener((state) {
-        if (firstCall) {
-          firstCall = false;
-        } else {
-          listenerCalled = true;
-        }
-      });
       notifier.decrement();
 
-      expect(
-        notifier.currentState,
-        0,
-        reason:
-            'the state changes even though the updateShouldNotify returned false',
-      );
-      expect(
-        listenerCalled,
-        isFalse,
-        reason:
-            'since `UpdateShouldNotify` returned false, the listener should not be called',
-      );
+      verifyNoMoreInteractions(listener);
+      expect(notifier.debugState, 0);
     },
   );
 }

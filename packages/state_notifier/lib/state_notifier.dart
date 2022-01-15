@@ -208,15 +208,14 @@ Consider checking `mounted`.
   @protected
   set state(T value) {
     assert(_debugIsMounted(), '');
+    final previousState = _state;
+    _state = value;
 
     /// only notify listeners when should
-    if (!updateShouldNotify(_state, value)) {
-      /// updates the `state` weather and do not notify
-      _state = value;
+    if (!updateShouldNotify(previousState, value)) {
       return;
     }
 
-    _state = value;
     _controller?.add(value);
 
     final errors = <Object>[];
