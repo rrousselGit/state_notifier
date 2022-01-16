@@ -1,3 +1,7 @@
+## 0.7.2+1
+
+- Fixed an issue with `updateShouldNotify` naturally always returning `false`.
+
 ## 0.7.2
 
 - Added `StateNotifier.updateShouldNotify` for customizing notification filtering (thanks to @maxzod)
