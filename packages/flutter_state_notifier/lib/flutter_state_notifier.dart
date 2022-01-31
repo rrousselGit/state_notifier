@@ -27,7 +27,7 @@ class StateNotifierBuilder<T> extends StatefulWidget {
   /// Cannot be `null`.
   final ValueWidgetBuilder<T> builder;
 
-  /// The listened [StateNotifier].
+  /// The listened to [StateNotifier].
   ///
   /// Cannot be `null`.
   final StateNotifier<T> stateNotifier;
@@ -268,7 +268,7 @@ class _StateNotifierProvider<Controller extends StateNotifier<Value>, Value>
               assert(
                 !value.hasListeners,
                 'StateNotifierProvider created a StateNotifier that is already'
-                ' being listened by something else',
+                ' being listened to by something else',
               );
             },
       update: (context, controller) {
