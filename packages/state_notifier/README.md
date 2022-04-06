@@ -35,7 +35,7 @@ maintain as it grows larger.
 By using immutable state, it becomes a lot simpler to:
 
 - compare previous and new state
-- implement undo-redo mechanism
+- implement an undo-redo mechanism
 - debug the application state
 
 ## Good practices
@@ -53,7 +53,7 @@ final notifier = Counter();
 notifier.state++;
 ```
 
-That is considered anti-pattern (and your IDE should show a warning).
+That is considered an anti-pattern (and your IDE should show a warning).
 
 Only the [StateNotifier] should modify its state. Instead, prefer using a method:
 
@@ -76,7 +76,7 @@ the [StateNotifier] itself.
 ### Why are listeners called when the new state is == to the previous state?
 
 You may realize that a [StateNotifier] does not use `==` to verify that
-the state has changed before notifying for changes .
+the state has changed before notifying for changes.
 
 This behavior is voluntary, for performance reasons.
 
@@ -91,13 +91,13 @@ As such, instead of using `==`, [StateNotifier] relies on `identical` to compare
 objects.  
 This way, when using [StateNotifier] with simple states like `int`/enums, it will
 correctly filter identical states. At the same time, this preserves performance
-on complex states, at `identical` will not perform a deep object comparison.
+on complex states, as `identical` will not perform a deep object comparison.
 
-### Using a custom notification filter logic
+### Using custom notification filter logic
 
 You can override the method `updateShouldNotify(T old,T current)` of a `StateNotifier` to change the default behaviour, such as for:
 - using `==` instead of `identical` to filter updates, for deep state comparison
-- always return `true` to revert to older behaviors of `StateNotifier`
+- always returning `true` to revert to older behaviors of `StateNotifier`
 
 ```dart
   @override
@@ -114,16 +114,16 @@ You can override the method `updateShouldNotify(T old,T current)` of a `StateNot
 While entirely optional, it is recommended to use [StateNotifier] in combination
 with [Freezed].  
 [Freezed] is a code-generation package for data-classes in Dart, which
-automatically generates methods like `copyWith` and add support for union-types.
+automatically generates methods like `copyWith` and adds support for union-types.
 
 A typical example would be using [Freezed] to handle data vs error vs loading states.
-With its union-types, it can lead to a significant improvement in maintainability as,
+With its union-types, it can lead to a significant improvement in maintainability as
 it:
 
 - ensures that your application will not enter illogical states
-  (such as both having a "data" and being in "loading" state)
-- ensures that logic handles all possible cases. Such as forcing to check
-  loading/error cases before trying to access the data.
+  (such as both having a "data" and being in the "loading" state)
+- ensures that logic handles all possible cases. Such as forcing that the
+  loading/error cases be checked before trying to access the data.
 
 The idea is that, rather than defining the data, error and loading state in a single
 object like:
@@ -288,7 +288,7 @@ test('increment and saves to local storage', () {
 });
 ```
 
-**Note:** `LocatorMixin` only works on `StateNotifier`, if you try to use it on other classes by `with LocatorMixin` then it will not work.
+**Note:** `LocatorMixin` only works on `StateNotifier`. If you try to use it on other classes by using `with LocatorMixin`, it will not work.
 
 [provider]: https://pub.dev/packages/provider
 [freezed]: https://pub.dev/packages/freezed

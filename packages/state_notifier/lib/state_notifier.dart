@@ -8,7 +8,7 @@ import 'package:meta/meta.dart';
 /// A listener that can be added to a [StateNotifier] using
 /// [StateNotifier.addListener].
 ///
-/// This callback receives the current [StateNotifier.state] as parameter.
+/// This callback receives the current [StateNotifier.state] as a parameter.
 typedef Listener<T> = void Function(T state);
 
 /// A callback that can be used to remove a listener added with
@@ -38,8 +38,8 @@ typedef ErrorListener = void Function(Object error, StackTrace? stackTrace);
 /// May throw a [DependencyNotFoundException].
 typedef Locator = T Function<T>();
 
-/// An error thrown when tried to update the state of a [StateNotifier],
-/// but at least of the listeners threw.
+/// An error thrown when trying to update the state of a [StateNotifier],
+/// but at least one of the listeners threw.
 @sealed
 class StateNotifierListenerError extends Error {
   StateNotifierListenerError._(
@@ -92,7 +92,7 @@ $buffer
 ///
 /// By using immutable state, it becomes a lot simpler to:
 /// - compare previous and new state
-/// - implement undo-redo mechanism
+/// - implement an undo-redo mechanism
 /// - debug the application state
 /// ## Example: Counter
 ///
@@ -121,7 +121,7 @@ $buffer
 /// assigning [state] to a new value will automatically notify the listeners
 /// and update the UI.
 ///
-/// Then, the object can either be listened like with `StateNotifierBuilder`/`StateNotifierProvider`
+/// Then, the object can be listened to with `StateNotifierBuilder`/`StateNotifierProvider`
 /// using `package:flutter_state_notifier` or `package:riverpod`.
 ///
 /// See also:
@@ -311,7 +311,7 @@ Consider checking `mounted`.
     };
   }
 
-  /// Frees all the resources associated to this object.
+  /// Frees all the resources associated with this object.
   ///
   /// This marks the object as no longer usable and will make all methods/properties
   /// besides [mounted] inaccessible.
@@ -337,7 +337,7 @@ class _ListenerEntry<T> extends LinkedListEntry<_ListenerEntry<T>> {
 /// It also provides testing utilities to be able to mock dependencies.
 ///
 /// In the context of Flutter + `provider`, adding that mixin to an object
-/// makes it impossible to shared one instance across multiple "providers".
+/// makes it impossible to share one instance across multiple "providers".
 ///
 /// This mix-in does not do anything by itself.\
 /// It is simply an interface for 3rd party libraries such as provider to implement
