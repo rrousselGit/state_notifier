@@ -96,6 +96,7 @@ on complex states, as `identical` will not perform a deep object comparison.
 ### Using custom notification filter logic
 
 You can override the method `updateShouldNotify(T old,T current)` of a `StateNotifier` to change the default behaviour, such as for:
+
 - using `==` instead of `identical` to filter updates, for deep state comparison
 - always returning `true` to revert to older behaviors of `StateNotifier`
 
@@ -289,6 +290,14 @@ test('increment and saves to local storage', () {
 ```
 
 **Note:** `LocatorMixin` only works on `StateNotifier`. If you try to use it on other classes by using `with LocatorMixin`, it will not work.
+
+## Sponsors
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/rrousselGit/freezed/master/sponsorkit/sponsors.svg">
+    <img src='https://raw.githubusercontent.com/rrousselGit/freezed/master/sponsorkit/sponsors.svg'/>
+  </a>
+</p>
 
 [provider]: https://pub.dev/packages/provider
 [freezed]: https://pub.dev/packages/freezed
