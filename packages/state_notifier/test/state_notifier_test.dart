@@ -420,7 +420,7 @@ void main() {
       expect(() => notifier.read<int>(), throwsDependencyNotFound<int>());
       expect(() => notifier.read<double>(), throwsDependencyNotFound<double>());
     });
-    test('mocking dependency then disposing the objet correctly disable read',
+    test('mocking dependency then disposing the object correctly disable read',
         () {
       final notifier = TestNotifier(0)
         ..debugMockDependency(42)

@@ -35,7 +35,7 @@ Added `StateNotifier.stream`, to listen to a `StateNotifier` using the `Stream` 
 
 ## 0.2.0
 
-- Added `.value` contructor on `StateNotifierProvider`
+- Added `.value` constructor on `StateNotifierProvider`
 
 ## 0.1.0+1
 
