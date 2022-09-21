@@ -81,7 +81,7 @@ class MyHomePage extends StatelessWidget {
             ),
             Text(
               context.select((MyState value) => value.count).toString(),
-              style: Theme.of(context).textTheme.headline4,
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ],
         ),
