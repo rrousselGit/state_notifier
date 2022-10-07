@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_state_notifier: ^0.6.0
-  provider: ^5.0.0-nullsafety.0
+  provider: ^6.0.0
   state_notifier: ^0.6.0
 
 dev_dependencies:
