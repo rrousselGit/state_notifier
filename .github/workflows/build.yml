@@ -45,9 +45,9 @@ jobs:
         run: dart test --coverage coverage
         working-directory: ${{ matrix.package }}
 
-      - name: Coverage
-        run: dart run coverage:format_coverage -l -i ./coverage/test/state_notifier_test.dart.vm.json -o ./coverage/lcov.info --packages ./.packages
-        working-directory: ${{ matrix.package }}
+      # - name: Coverage
+      #   run: dart run coverage:format_coverage -l -i ./coverage/test/state_notifier_test.dart.vm.json -o ./coverage/lcov.info --packages ./.packages
+      #   working-directory: ${{ matrix.package }}
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
