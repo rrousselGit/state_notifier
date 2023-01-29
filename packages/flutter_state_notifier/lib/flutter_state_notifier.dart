@@ -7,6 +7,8 @@ import 'package:provider/provider.dart' hide Locator;
 import 'package:provider/single_child_widget.dart';
 import 'package:state_notifier/state_notifier.dart';
 
+export 'package:state_notifier/state_notifier.dart' hide Listener, Locator;
+
 /// {@template flutter_state_notifier.state_notifier_builder}
 /// Listens to a [StateNotifier] and use it builds a widget tree based on the
 /// latest value.
