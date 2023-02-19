@@ -1,3 +1,7 @@
+## 0.7.3
+
+The package now re-exports `package:state_notifier`
+
 ## 0.7.1
 
 - Update dependencies
