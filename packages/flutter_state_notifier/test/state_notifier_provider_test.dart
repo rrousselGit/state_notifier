@@ -77,6 +77,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
@@ -102,6 +103,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
@@ -266,6 +268,7 @@ void main() {
       StateNotifierProvider<TestNotifier, int>(
         key: key,
         create: (_) => notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
@@ -290,6 +293,7 @@ void main() {
       StateNotifierProvider<TestNotifier, int>.value(
         key: key,
         value: notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
