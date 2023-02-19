@@ -41,7 +41,7 @@ void main() {
 ///
 /// This will apply an [IntTween] on [MyState.count].
 class MyStateTween extends Tween<MyState> {
-  MyStateTween({super.begin, super.end});
+  MyStateTween({MyState? begin, MyState? end}) : super(begin: begin, end: end);
 
   @override
   MyState lerp(double t) {
@@ -64,7 +64,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  const MyHomePage({super.key});
+  const MyHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
