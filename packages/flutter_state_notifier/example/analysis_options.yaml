@@ -175,11 +175,6 @@ linter:
     # https://dart-lang.github.io/linter/lints/avoid_renaming_method_parameters.html
     # - avoid_renaming_method_parameters
 
-    # Don't use `Future?`, therefore never return null instead of a Future.
-    # Will become obsolete one Non-Nullable types land
-    # https://dart-lang.github.io/linter/lints/avoid_returning_null_for_future.html
-    - avoid_returning_null_for_future
-
     # Use empty returns, don't show off with you knowledge about dart internals.
     # https://dart-lang.github.io/linter/lints/avoid_returning_null_for_void.html
     - avoid_returning_null_for_void
