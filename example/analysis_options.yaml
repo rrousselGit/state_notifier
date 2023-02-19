@@ -14,7 +14,6 @@ linter:
     - avoid_relative_lib_imports
     - avoid_renaming_method_parameters
     - avoid_return_types_on_setters
-    - avoid_returning_null
     - avoid_types_as_parameter_names
     - avoid_unused_constructor_parameters
     - await_only_futures
@@ -50,7 +49,6 @@ linter:
     - prefer_conditional_assignment
     - prefer_const_constructors
     - prefer_contains
-    - prefer_equal_for_default_values
     - prefer_final_fields
     - prefer_initializing_formals
     - prefer_interpolation_to_compose_strings
@@ -93,12 +91,6 @@ linter:
     # pedantic: disabled
     # http://dart-lang.github.io/linter/lints/always_declare_return_types.html
     # - always_put_required_named_parameters_first
-
-    # All non nullable named parameters should be and annotated with @required.
-    # This allows API consumers to get warnings via lint rather than a crash a runtime.
-    # Might become obsolete with Non-Nullable types
-    # http://dart-lang.github.io/linter/lints/always_require_non_null_named_parameters.html
-    - always_require_non_null_named_parameters
 
     # Since dart 2.0 dart is a sound language, specifying types is not required anymore.
     # `var foo = 10;` is enough information for the compiler to make foo a int.
@@ -183,12 +175,6 @@ linter:
     # Not recommended to break dartdoc but besides that there is no reason to continue with bad naming
     # https://dart-lang.github.io/linter/lints/avoid_renaming_method_parameters.html
     # - avoid_renaming_method_parameters
-
-    # Especially with Non-Nullable types on the horizon, `int?` is fine.
-    # There are plenty of valid reasons to return null.
-    # pedantic: disabled
-    # https://dart-lang.github.io/linter/lints/avoid_returning_null.html
-    # - avoid_returning_null
 
     # Don't use `Future?`, therefore never return null instead of a Future.
     # Will become obsolete one Non-Nullable types land
