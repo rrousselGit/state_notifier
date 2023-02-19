@@ -3,7 +3,6 @@ import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:provider/provider.dart';
-import 'package:state_notifier/state_notifier.dart';
 
 import 'common.dart';
 
@@ -78,6 +77,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
@@ -103,6 +103,7 @@ void main() {
     await tester.pumpWidget(
       StateNotifierProvider<TestNotifier, int>(
         create: (_) => notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
@@ -267,6 +268,7 @@ void main() {
       StateNotifierProvider<TestNotifier, int>(
         key: key,
         create: (_) => notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
@@ -291,6 +293,7 @@ void main() {
       StateNotifierProvider<TestNotifier, int>.value(
         key: key,
         value: notifier,
+        // ignore: prefer_const_constructors
         child: Column(
           textDirection: TextDirection.ltr,
           children: const <Widget>[
