@@ -414,37 +414,18 @@ typedef StateNotifierListenerCondition<Value> = bool Function(
 /// )
 /// ```
 /// {@endtemplate}
-class StateNotifierListener<Controller extends StateNotifier<Value>, Value>
-    extends StateNotifierListenerBase<Controller, Value> {
-  /// {@macro state_notifier_listener}
-  /// {@macro state_notifier_listener_listen_when}
-  const StateNotifierListener({
-    Key? key,
-    required StateNotifierWidgetListener<Value> listener,
-    Controller? value,
-    StateNotifierListenerCondition<Value>? listenWhen,
-    Widget? child,
-  }) : super(
-          key: key,
-          child: child,
-          listener: listener,
-          value: value,
-          listenWhen: listenWhen,
-        );
-}
 
 /// {@template state_notifier_listener_base}
 /// Base class for widgets that listen to state changes in a specified [value].
 ///
-/// A [StateNotifierListenerBase] is stateful and maintains the state subscription.
+/// A [StateNotifierListener] is stateful and maintains the state subscription.
 /// The type of the state and what happens with each state change
 /// is defined by sub-classes.
 /// {@endtemplate}
-abstract class StateNotifierListenerBase<
-    Controller extends StateNotifier<Value>,
-    Value> extends SingleChildStatefulWidget {
+class StateNotifierListener<Controller extends StateNotifier<Value>, Value>
+    extends SingleChildStatefulWidget {
   /// {@macro state_notifier_listener_base}
-  const StateNotifierListenerBase({
+  const StateNotifierListener({
     Key? key,
     required this.listener,
     this.value,
@@ -453,7 +434,7 @@ abstract class StateNotifierListenerBase<
   }) : super(key: key, child: child);
 
   /// The widget which will be rendered as a descendant of the
-  /// [StateNotifierListenerBase].
+  /// [StateNotifierListener].
   final Widget? child;
 
   /// The [value] whose `state` will be listened to.
@@ -469,13 +450,12 @@ abstract class StateNotifierListenerBase<
   final StateNotifierListenerCondition<Value>? listenWhen;
 
   @override
-  SingleChildState<StateNotifierListenerBase<Controller, Value>>
-      createState() => _StateNotifierListenerBaseState<Controller, Value>();
+  SingleChildState<StateNotifierListener<Controller, Value>> createState() =>
+      _StateNotifierListenerBaseState<Controller, Value>();
 }
 
 class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
-        Value>
-    extends SingleChildState<StateNotifierListenerBase<Controller, Value>> {
+    Value> extends SingleChildState<StateNotifierListener<Controller, Value>> {
   StreamSubscription<Value>? _subscription;
   late Controller _controller;
   late Value _previousState;
@@ -490,7 +470,7 @@ class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
   }
 
   @override
-  void didUpdateWidget(StateNotifierListenerBase<Controller, Value> oldWidget) {
+  void didUpdateWidget(StateNotifierListener<Controller, Value> oldWidget) {
     super.didUpdateWidget(oldWidget);
     final oldController = oldWidget.value ?? context.read<Controller>();
     final currentController = widget.value ?? oldController;
