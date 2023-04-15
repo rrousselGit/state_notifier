@@ -1,5 +1,7 @@
 library flutter_state_notifier;
 
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 // ignore: undefined_hidden_name
@@ -339,4 +341,270 @@ class _StateNotifierProviderElement<Controller extends StateNotifier<Value>,
 
     provider.debugFillProperties(properties);
   }
+}
+
+/// Signature for the `listener` function which takes the `BuildContext` along
+/// with the `state` and is responsible for executing in response to
+/// `state` changes.
+typedef StateNotifierWidgetListener<Value> = void Function(
+    BuildContext context, Value state);
+
+/// Signature for the `listenWhen` function which takes the previous `state`
+/// and the current `state` and is responsible for returning a [bool] which
+/// determines whether or not to call [StateNotifierWidgetListener] of [StateNotifierListener]
+/// with the current `state`.
+typedef StateNotifierListenerCondition<Value> = bool Function(
+    Value previous, Value current);
+
+/// {@template state_notifier_listener}
+/// Takes a [StateNotifierWidgetListener] and an optional [value] and invokes
+/// the [listener] in response to `state` changes in the [value].
+/// It should be used for functionality that needs to occur only in response to
+/// a `state` change such as navigation, showing a `SnackBar`, showing
+/// a `Dialog`, etc...
+/// The [listener] is guaranteed to only be called once for each `state` change
+/// unlike the `builder` in [StateNotifierBuilder].
+///
+/// If the [value] parameter is omitted, [StateNotifierListener] will automatically
+/// perform a lookup using [StateNotifierProvider] and the current `BuildContext`.
+///
+/// ```dart
+/// StateNotifierListener<MyController, MyState>(
+///   listener: (context, state) {
+///     // do stuff here based on MyController's state
+///   },
+///   child: Container(),
+/// )
+/// ```
+/// Only specify the [value] if you wish to provide a [value] that is otherwise
+/// not accessible via [StateNotifierProvider] and the current `BuildContext`.
+///
+/// ```dart
+/// StateNotifierListener<MyController, MyState>(
+///   value: myController,
+///   listener: (context, state) {
+///     // do stuff here based on MyController's state
+///   },
+///   child: Container(),
+/// )
+/// ```
+/// {@endtemplate}
+///
+/// {@template state_notifier_listener_listen_when}
+/// An optional [listenWhen] can be implemented for more granular control
+/// over when [listener] is called.
+/// [listenWhen] will be invoked on each [value] `state` change.
+/// [listenWhen] takes the previous `state` and current `state` and must
+/// return a [bool] which determines whether or not the [listener] function
+/// will be invoked.
+/// The previous `state` will be initialized to the `state` of the [value]
+/// when the [StateNotifierListener] is initialized.
+/// [listenWhen] is optional and if omitted, it will default to `true`.
+///
+/// ```dart
+/// StateNotifierListener<MyController, MyState>(
+///   listenWhen: (previous, current) {
+///     // return true/false to determine whether or not
+///     // to invoke listener with state
+///   },
+///   listener: (context, state) {
+///     // do stuff here based on MyController's state
+///   }
+///   child: Container(),
+/// )
+/// ```
+/// {@endtemplate}
+class StateNotifierListener<Controller extends StateNotifier<Value>, Value>
+    extends StateNotifierListenerBase<Controller, Value> {
+  /// {@macro state_notifier_listener}
+  /// {@macro state_notifier_listener_listen_when}
+  const StateNotifierListener({
+    Key? key,
+    required StateNotifierWidgetListener<Value> listener,
+    Controller? value,
+    StateNotifierListenerCondition<Value>? listenWhen,
+    Widget? child,
+  }) : super(
+          key: key,
+          child: child,
+          listener: listener,
+          value: value,
+          listenWhen: listenWhen,
+        );
+}
+
+/// {@template state_notifier_listener_base}
+/// Base class for widgets that listen to state changes in a specified [value].
+///
+/// A [StateNotifierListenerBase] is stateful and maintains the state subscription.
+/// The type of the state and what happens with each state change
+/// is defined by sub-classes.
+/// {@endtemplate}
+abstract class StateNotifierListenerBase<
+    Controller extends StateNotifier<Value>,
+    Value> extends SingleChildStatefulWidget {
+  /// {@macro state_notifier_listener_base}
+  const StateNotifierListenerBase({
+    Key? key,
+    required this.listener,
+    this.value,
+    this.child,
+    this.listenWhen,
+  }) : super(key: key, child: child);
+
+  /// The widget which will be rendered as a descendant of the
+  /// [StateNotifierListenerBase].
+  final Widget? child;
+
+  /// The [value] whose `state` will be listened to.
+  /// Whenever the [value]'s `state` changes, [listener] will be invoked.
+  final Controller? value;
+
+  /// The [StateNotifierWidgetListener] which will be called on every `state` change.
+  /// This [listener] should be used for any code which needs to execute
+  /// in response to a `state` change.
+  final StateNotifierWidgetListener<Value> listener;
+
+  /// {@macro state_notifier_listener_listen_when}
+  final StateNotifierListenerCondition<Value>? listenWhen;
+
+  @override
+  SingleChildState<StateNotifierListenerBase<Controller, Value>>
+      createState() => _StateNotifierListenerBaseState<Controller, Value>();
+}
+
+class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
+        Value>
+    extends SingleChildState<StateNotifierListenerBase<Controller, Value>> {
+  StreamSubscription<Value>? _subscription;
+  late Controller _controller;
+  late Value _previousState;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.value ?? context.read<Controller>();
+    // ignore: invalid_use_of_protected_member
+    _previousState = _controller.state;
+    _subscribe();
+  }
+
+  @override
+  void didUpdateWidget(StateNotifierListenerBase<Controller, Value> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final oldController = oldWidget.value ?? context.read<Controller>();
+    final currentController = widget.value ?? oldController;
+    if (oldController != currentController) {
+      if (_subscription != null) {
+        _unsubscribe();
+        _controller = currentController;
+        // ignore: invalid_use_of_protected_member
+        _previousState = _controller.state;
+      }
+      _subscribe();
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final controller = widget.value ?? context.read<Controller>();
+    if (_controller != controller) {
+      if (_subscription != null) {
+        _unsubscribe();
+        _controller = controller;
+        // ignore: invalid_use_of_protected_member
+        _previousState = _controller.state;
+      }
+      _subscribe();
+    }
+  }
+
+  @override
+  Widget buildWithChild(BuildContext context, Widget? child) {
+    assert(
+      child != null,
+      '''${widget.runtimeType} used outside of MultiStateNotifierListener must specify a child''',
+    );
+    if (widget.value == null) {
+      // Trigger a rebuild if the controller reference has changed.
+      context.select<Controller, bool>(
+          (controller) => identical(_controller, controller));
+    }
+    return child!;
+  }
+
+  @override
+  void dispose() {
+    _unsubscribe();
+    super.dispose();
+  }
+
+  void _subscribe() {
+    _subscription = _controller.stream.listen((state) {
+      if (widget.listenWhen?.call(_previousState, state) ?? true) {
+        widget.listener(context, state);
+      }
+      _previousState = state;
+    });
+  }
+
+  void _unsubscribe() {
+    _subscription?.cancel();
+    _subscription = null;
+  }
+}
+
+/// {@template multi_state_notifier_listener}
+/// Merges multiple [StateNotifierListener] widgets into one widget tree.
+///
+/// [MultiStateNotifierListener] improves the readability and eliminates the need
+/// to nest multiple [StateNotifierListener]s.
+///
+/// By using [MultiStateNotifierListener] we can go from:
+///
+/// ```dart
+/// StateNotifierListener<MyControllerA, MyStateA>(
+///   listener: (context, state) {},
+///   child: StateNotifierListener<MyControllerB, MyStateB>(
+///     listener: (context, state) {},
+///     child: StateNotifierListener<MyControllerC, MyStateC>(
+///       listener: (context, state) {},
+///       child: MyWidget(),
+///     ),
+///   ),
+/// )
+/// ```
+///
+/// to:
+///
+/// ```dart
+/// MultiStateNotifierListener(
+///   listeners: [
+///     StateNotifierListener<MyControllerA, MyStateA>(
+///       listener: (context, state) {},
+///     ),
+///     StateNotifierListener<MyControllerB, MyStateB>(
+///       listener: (context, state) {},
+///     ),
+///     StateNotifierListener<MyControllerC, MyStateC>(
+///       listener: (context, state) {},
+///     ),
+///   ],
+///   child: MyWidget(),
+/// )
+/// ```
+///
+/// [MultiStateNotifierListener] converts the [StateNotifierListener] list into a tree of nested
+/// [StateNotifierListener] widgets.
+/// As a result, the only advantage of using [MultiStateNotifierListener] is improved
+/// readability due to the reduction in nesting and boilerplate.
+/// {@endtemplate}
+class MultiStateNotifierListener extends MultiProvider {
+  /// {@macro multi_state_notifier_listener}
+  MultiStateNotifierListener({
+    Key? key,
+    required List<SingleChildWidget> listeners,
+    required Widget child,
+  }) : super(key: key, providers: listeners, child: child);
 }
