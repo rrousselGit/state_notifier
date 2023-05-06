@@ -110,6 +110,46 @@ You can override the method `updateShouldNotify(T old,T current)` of a `StateNot
 
 ## Usage
 
+### Listening to state changes
+
+While you can use `addListener` to listen state changes, you could use [StateNotifierListener] widget to use functionalities that needs to occur only in response to a `state` change such as navigation, showing a [SnackBar], showing a [Dialog], etc...
+
+The [StateNotifierListener] widget that takes a [StateNotifierWidgetListener] and a `stateNotifier`
+and invokes the `listener` in response to `state` changes in the `stateNotifier`.
+
+The `listener` is guaranteed to only be called once for each `state` change unlike the `builder` in [StateNotifierBuilder].
+
+```dart
+ StateNotifierListener<MyNotifier, MyState>(
+   value: myNotifier,
+   listener: (context, state) {
+     // do stuff here based on MyNotifier's state
+   },
+   child: Container(),
+ )
+```
+
+An optional `listenWhen` can be implemented for more granular control
+over when `listener` is called.
+
+The `listenWhen` it's invoked on each `stateNotifier` `state` change and if is omitted, it will default to `true`.
+
+The `listenWhen` takes the previous `state` and current `state` and return a `bool` which determines whether or not the `listener` function will be invoked. The previous `state` will be initialized to the `state` of the `stateNotifier` when the `StateNotifierListener` is initialized.
+
+```dart
+ StateNotifierListener<MyNotifier, MyState>(
+   value: myNotifier,
+   listenWhen: (previous, current) {
+     // return true/false to determine whether or not
+     // to invoke listener with state
+   },
+   listener: (context, state) {
+     // do stuff here based on MyNotifier's state
+   }
+   child: Container(),
+ )
+```
+
 ### Integration with Freezed
 
 While entirely optional, it is recommended to use [StateNotifier] in combination
@@ -307,3 +347,8 @@ test('increment and saves to local storage', () {
 [locatormixin]: https://pub.dev/documentation/state_notifier/latest/state_notifier/LocatorMixin-class.html
 [valuenotifier]: https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html
 [changenotifier]: https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html
+[snackbar]: https://api.flutter.dev/flutter/material/SnackBar-class.html
+[dialog]: https://api.flutter.dev/flutter/material/Dialog-class.html
+[statenotifierbuilder]: https://pub.dev/documentation/flutter_state_notifier/latest/flutter_state_notifier/StateNotifierBuilder-class.html
+[statenotifierlistener]: https://pub.dev/documentation/flutter_state_notifier/latest/flutter_state_notifier/StateNotifierListener-class.html
+[statenotifierwidgetlistener]: https://pub.dev/documentation/state_notifier/latest/state_notifier/StateNotifierWidgetListener.html
