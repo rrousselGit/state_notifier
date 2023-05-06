@@ -357,15 +357,15 @@ typedef StateNotifierListenerCondition<Value> = bool Function(
     Value previous, Value current);
 
 /// {@template state_notifier_listener}
-/// Takes a [StateNotifierWidgetListener] and an optional [value] and invokes
-/// the [listener] in response to `state` changes in the [value].
+/// Takes a [StateNotifierWidgetListener] and an optional [stateNotifier] and invokes
+/// the [listener] in response to `state` changes in the [stateNotifier].
 /// It should be used for functionality that needs to occur only in response to
 /// a `state` change such as navigation, showing a `SnackBar`, showing
 /// a `Dialog`, etc...
 /// The [listener] is guaranteed to only be called once for each `state` change
 /// unlike the `builder` in [StateNotifierBuilder].
 ///
-/// If the [value] parameter is omitted, [StateNotifierListener] will automatically
+/// If the [stateNotifier] parameter is omitted, [StateNotifierListener] will automatically
 /// perform a lookup using [StateNotifierProvider] and the current `BuildContext`.
 ///
 /// ```dart
@@ -376,7 +376,7 @@ typedef StateNotifierListenerCondition<Value> = bool Function(
 ///   child: Container(),
 /// )
 /// ```
-/// Only specify the [value] if you wish to provide a [value] that is otherwise
+/// Only specify the [stateNotifier] if you wish to provide a [stateNotifier] that is otherwise
 /// not accessible via [StateNotifierProvider] and the current `BuildContext`.
 ///
 /// ```dart
@@ -393,11 +393,11 @@ typedef StateNotifierListenerCondition<Value> = bool Function(
 /// {@template state_notifier_listener_listen_when}
 /// An optional [listenWhen] can be implemented for more granular control
 /// over when [listener] is called.
-/// [listenWhen] will be invoked on each [value] `state` change.
+/// [listenWhen] will be invoked on each [stateNotifier] `state` change.
 /// [listenWhen] takes the previous `state` and current `state` and must
 /// return a [bool] which determines whether or not the [listener] function
 /// will be invoked.
-/// The previous `state` will be initialized to the `state` of the [value]
+/// The previous `state` will be initialized to the `state` of the [stateNotifier]
 /// when the [StateNotifierListener] is initialized.
 /// [listenWhen] is optional and if omitted, it will default to `true`.
 ///
@@ -416,30 +416,30 @@ typedef StateNotifierListenerCondition<Value> = bool Function(
 /// {@endtemplate}
 
 /// {@template state_notifier_listener_base}
-/// Base class for widgets that listen to state changes in a specified [value].
+/// Base class for widgets that listen to state changes in a specified [stateNotifier].
 ///
 /// A [StateNotifierListener] is stateful and maintains the state subscription.
 /// The type of the state and what happens with each state change
 /// is defined by sub-classes.
 /// {@endtemplate}
 class StateNotifierListener<Controller extends StateNotifier<Value>, Value>
-    extends SingleChildStatefulWidget {
+    extends StatefulWidget {
   /// {@macro state_notifier_listener_base}
   const StateNotifierListener({
     Key? key,
     required this.listener,
-    this.value,
-    this.child,
+    required this.stateNotifier,
+    required this.child,
     this.listenWhen,
-  }) : super(key: key, child: child);
+  }) : super(key: key);
 
   /// The widget which will be rendered as a descendant of the
   /// [StateNotifierListener].
-  final Widget? child;
+  final Widget child;
 
-  /// The [value] whose `state` will be listened to.
-  /// Whenever the [value]'s `state` changes, [listener] will be invoked.
-  final Controller? value;
+  /// The [stateNotifier] whose `state` will be listened to.
+  /// Whenever the [stateNotifier]'s `state` changes, [listener] will be invoked.
+  final Controller stateNotifier;
 
   /// The [StateNotifierWidgetListener] which will be called on every `state` change.
   /// This [listener] should be used for any code which needs to execute
@@ -450,20 +450,20 @@ class StateNotifierListener<Controller extends StateNotifier<Value>, Value>
   final StateNotifierListenerCondition<Value>? listenWhen;
 
   @override
-  SingleChildState<StateNotifierListener<Controller, Value>> createState() =>
-      _StateNotifierListenerBaseState<Controller, Value>();
+  _StateNotifierListenerState<Controller, Value> createState() =>
+      _StateNotifierListenerState<Controller, Value>();
 }
 
-class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
-    Value> extends SingleChildState<StateNotifierListener<Controller, Value>> {
-  StreamSubscription<Value>? _subscription;
+class _StateNotifierListenerState<Controller extends StateNotifier<Value>,
+    Value> extends State<StateNotifierListener<Controller, Value>> {
   late Controller _controller;
   late Value _previousState;
+  StreamSubscription<Value>? _subscription;
 
   @override
   void initState() {
     super.initState();
-    _controller = widget.value ?? context.read<Controller>();
+    _controller = widget.stateNotifier;
     // ignore: invalid_use_of_protected_member
     _previousState = _controller.state;
     _subscribe();
@@ -472,8 +472,8 @@ class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
   @override
   void didUpdateWidget(StateNotifierListener<Controller, Value> oldWidget) {
     super.didUpdateWidget(oldWidget);
-    final oldController = oldWidget.value ?? context.read<Controller>();
-    final currentController = widget.value ?? oldController;
+    final oldController = oldWidget.stateNotifier;
+    final currentController = widget.stateNotifier;
     if (oldController != currentController) {
       if (_subscription != null) {
         _unsubscribe();
@@ -488,7 +488,7 @@ class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final controller = widget.value ?? context.read<Controller>();
+    final controller = widget.stateNotifier;
     if (_controller != controller) {
       if (_subscription != null) {
         _unsubscribe();
@@ -501,23 +501,18 @@ class _StateNotifierListenerBaseState<Controller extends StateNotifier<Value>,
   }
 
   @override
-  Widget buildWithChild(BuildContext context, Widget? child) {
-    assert(
-      child != null,
-      '''${widget.runtimeType} used outside of MultiStateNotifierListener must specify a child''',
-    );
-    if (widget.value == null) {
-      // Trigger a rebuild if the controller reference has changed.
-      context.select<Controller, bool>(
-          (controller) => identical(_controller, controller));
-    }
-    return child!;
-  }
-
-  @override
   void dispose() {
     _unsubscribe();
     super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Controller>('state', _controller));
   }
 
   void _subscribe() {

@@ -8,16 +8,16 @@ class CounterNotifier extends StateNotifier<int> {
   void increment() => state = state + 1;
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key, this.onListenerCalled}) : super(key: key);
+class CounterApp extends StatefulWidget {
+  const CounterApp({Key? key, this.onListenerCalled}) : super(key: key);
 
   final StateNotifierWidgetListener<int>? onListenerCalled;
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  State<CounterApp> createState() => _CounterAppState();
 }
 
-class _MyAppState extends State<MyApp> {
+class _CounterAppState extends State<CounterApp> {
   late CounterNotifier _counterNotifier;
 
   @override
@@ -37,12 +37,17 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Scaffold(
         body: StateNotifierListener<CounterNotifier, int>(
-          value: _counterNotifier,
+          stateNotifier: _counterNotifier,
           listener: (context, state) {
             widget.onListenerCalled?.call(context, state);
           },
           child: Column(
             children: [
+              ElevatedButton(
+                key: const Key('state_notifier_listener_increment_button'),
+                child: const SizedBox(),
+                onPressed: () => _counterNotifier.increment(),
+              ),
               ElevatedButton(
                 key: const Key('state_notifier_listener_reset_button'),
                 child: const SizedBox(),
@@ -57,11 +62,6 @@ class _MyAppState extends State<MyApp> {
                   setState(() => _counterNotifier = _counterNotifier);
                 },
               ),
-              ElevatedButton(
-                key: const Key('state_notifier_listener_increment_button'),
-                child: const SizedBox(),
-                onPressed: () => _counterNotifier.increment(),
-              ),
             ],
           ),
         ),
@@ -72,28 +72,11 @@ class _MyAppState extends State<MyApp> {
 
 void main() {
   group('StateNotifierListener', () {
-    testWidgets(
-        'throws AssertionError '
-        'when child is not specified', (tester) async {
-      const expected =
-          '''StateNotifierListener<CounterNotifier, int> used outside of MultiStateNotifierListener must specify a child''';
-      await tester.pumpWidget(
-        StateNotifierListener<CounterNotifier, int>(
-          value: CounterNotifier(),
-          listener: (context, state) {},
-        ),
-      );
-      expect(
-        tester.takeException(),
-        isA<AssertionError>().having((e) => e.message, 'message', expected),
-      );
-    });
-
     testWidgets('renders child properly', (tester) async {
       const targetKey = Key('state_notifier_listener_container');
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: CounterNotifier(),
+          stateNotifier: CounterNotifier(),
           listener: (_, __) {},
           child: const SizedBox(key: targetKey),
         ),
@@ -107,7 +90,7 @@ void main() {
       const expectedStates = [1];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listener: (_, state) {
             states.add(state);
           },
@@ -125,7 +108,7 @@ void main() {
       const expectedStates = [1, 2];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listener: (_, state) {
             states.add(state);
           },
@@ -150,7 +133,7 @@ void main() {
       final resetNotifierFinder = find.byKey(
         const Key('state_notifier_listener_reset_button'),
       );
-      await tester.pumpWidget(MyApp(
+      await tester.pumpWidget(CounterApp(
         onListenerCalled: (_, state) {
           listenerCallCount++;
           latestState = state;
@@ -186,7 +169,7 @@ void main() {
       final noopNotifierFinder = find.byKey(
         const Key('state_notifier_listener_noop_button'),
       );
-      await tester.pumpWidget(MyApp(
+      await tester.pumpWidget(CounterApp(
         onListenerCalled: (context, state) {
           listenerCallCount++;
           latestState = state;
@@ -221,7 +204,7 @@ void main() {
       const expectedStates = [1];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (previous, state) {
             listenWhenCallCount++;
             latestPreviousState = previous;
@@ -250,7 +233,7 @@ void main() {
       const expectedStates = [2];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (previous, state) {
             listenWhenCallCount++;
             if ((previous + state) % 3 == 0) {
@@ -283,7 +266,7 @@ void main() {
       final counterNotifier = CounterNotifier();
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (previous, current) {
             if (current % 3 == 0) {
               listenWhenPreviousState.add(previous);
@@ -308,37 +291,6 @@ void main() {
     });
 
     testWidgets(
-        'infers the notifier from the context if the notifier is not provided',
-        (tester) async {
-      int? latestPreviousState;
-      var listenWhenCallCount = 0;
-      final states = <int>[];
-      final counterNotifier = CounterNotifier();
-      const expectedStates = [1];
-      await tester.pumpWidget(
-        StateNotifierProvider<CounterNotifier, int>.value(
-          value: counterNotifier,
-          child: StateNotifierListener<CounterNotifier, int>(
-            listenWhen: (previous, state) {
-              listenWhenCallCount++;
-              latestPreviousState = previous;
-              states.add(state);
-              return true;
-            },
-            listener: (context, state) {},
-            child: const SizedBox(),
-          ),
-        ),
-      );
-      counterNotifier.increment();
-      await tester.pump();
-
-      expect(states, expectedStates);
-      expect(listenWhenCallCount, 1);
-      expect(latestPreviousState, 0);
-    });
-
-    testWidgets(
         'calls listenWhen on multiple state change with correct previous '
         'and current states', (tester) async {
       int? latestPreviousState;
@@ -348,7 +300,7 @@ void main() {
       const expectedStates = [1, 2];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (previous, state) {
             listenWhenCallCount++;
             latestPreviousState = previous;
@@ -378,7 +330,7 @@ void main() {
       const expectedStates = <int>[];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (_, __) => false,
           listener: (_, state) => states.add(state),
           child: const SizedBox(),
@@ -398,7 +350,7 @@ void main() {
       const expectedStates = [1];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (_, __) => true,
           listener: (_, state) => states.add(state),
           child: const SizedBox(),
@@ -418,7 +370,7 @@ void main() {
       const expectedStates = <int>[];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (_, __) => false,
           listener: (_, state) => states.add(state),
           child: const SizedBox(),
@@ -444,7 +396,7 @@ void main() {
       const expectedStates = [1, 2, 3, 4];
       await tester.pumpWidget(
         StateNotifierListener<CounterNotifier, int>(
-          value: counterNotifier,
+          stateNotifier: counterNotifier,
           listenWhen: (_, __) => true,
           listener: (_, state) => states.add(state),
           child: const SizedBox(),
@@ -472,24 +424,20 @@ void main() {
       const expectedStates = [1, 101];
 
       await tester.pumpWidget(
-        StateNotifierProvider<CounterNotifier, int>.value(
-          value: firstCounterNotifier,
-          child: StateNotifierListener<CounterNotifier, int>(
-            listener: (_, state) => states.add(state),
-            child: const SizedBox(),
-          ),
+        StateNotifierListener<CounterNotifier, int>(
+          listener: (_, state) => states.add(state),
+          stateNotifier: firstCounterNotifier,
+          child: const SizedBox(),
         ),
       );
 
       firstCounterNotifier.increment();
 
       await tester.pumpWidget(
-        StateNotifierProvider<CounterNotifier, int>.value(
-          value: secondCounterNotifier,
-          child: StateNotifierListener<CounterNotifier, int>(
-            listener: (_, state) => states.add(state),
-            child: const SizedBox(),
-          ),
+        StateNotifierListener<CounterNotifier, int>(
+          stateNotifier: secondCounterNotifier,
+          listener: (_, state) => states.add(state),
+          child: const SizedBox(),
         ),
       );
 
