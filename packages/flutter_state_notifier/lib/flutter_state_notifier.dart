@@ -351,39 +351,23 @@ typedef StateNotifierWidgetListener<Value> = void Function(
 
 /// Signature for the `listenWhen` function which takes the previous `state`
 /// and the current `state` and is responsible for returning a [bool] which
-/// determines whether or not to call [StateNotifierWidgetListener] of [StateNotifierListener]
-/// with the current `state`.
+/// determines whether or not to call [StateNotifierWidgetListener] of
+/// [StateNotifierListener] with the current `state`.
 typedef StateNotifierListenerCondition<Value> = bool Function(
     Value previous, Value current);
 
 /// {@template state_notifier_listener}
-/// Takes a [StateNotifierWidgetListener] and an optional [stateNotifier] and invokes
-/// the [listener] in response to `state` changes in the [stateNotifier].
-/// It should be used for functionality that needs to occur only in response to
-/// a `state` change such as navigation, showing a `SnackBar`, showing
-/// a `Dialog`, etc...
+/// A widget that takes a [StateNotifierWidgetListener] and a [stateNotifier]
+/// and invokes the [listener] in response to `state` changes in the [stateNotifier].
+///
 /// The [listener] is guaranteed to only be called once for each `state` change
 /// unlike the `builder` in [StateNotifierBuilder].
 ///
-/// If the [stateNotifier] parameter is omitted, [StateNotifierListener] will automatically
-/// perform a lookup using [StateNotifierProvider] and the current `BuildContext`.
-///
 /// ```dart
-/// StateNotifierListener<MyController, MyState>(
+/// StateNotifierListener<MyNotifier, MyState>(
+///   value: myNotifier,
 ///   listener: (context, state) {
-///     // do stuff here based on MyController's state
-///   },
-///   child: Container(),
-/// )
-/// ```
-/// Only specify the [stateNotifier] if you wish to provide a [stateNotifier] that is otherwise
-/// not accessible via [StateNotifierProvider] and the current `BuildContext`.
-///
-/// ```dart
-/// StateNotifierListener<MyController, MyState>(
-///   value: myController,
-///   listener: (context, state) {
-///     // do stuff here based on MyController's state
+///     // do stuff here based on MyNotifier's state
 ///   },
 ///   child: Container(),
 /// )
@@ -393,38 +377,34 @@ typedef StateNotifierListenerCondition<Value> = bool Function(
 /// {@template state_notifier_listener_listen_when}
 /// An optional [listenWhen] can be implemented for more granular control
 /// over when [listener] is called.
+///
+/// If [listenWhen] is omitted, it will default to `true`.
+///
 /// [listenWhen] will be invoked on each [stateNotifier] `state` change.
 /// [listenWhen] takes the previous `state` and current `state` and must
 /// return a [bool] which determines whether or not the [listener] function
 /// will be invoked.
-/// The previous `state` will be initialized to the `state` of the [stateNotifier]
-/// when the [StateNotifierListener] is initialized.
-/// [listenWhen] is optional and if omitted, it will default to `true`.
+///
+/// The previous `state` will be initialized to the `state` of the
+/// [stateNotifier] when the [StateNotifierListener] is initialized.
 ///
 /// ```dart
-/// StateNotifierListener<MyController, MyState>(
+/// StateNotifierListener<MyNotifier, MyState>(
+///   value: myNotifier,
 ///   listenWhen: (previous, current) {
 ///     // return true/false to determine whether or not
 ///     // to invoke listener with state
 ///   },
 ///   listener: (context, state) {
-///     // do stuff here based on MyController's state
+///     // do stuff here based on MyNotifier's state
 ///   }
 ///   child: Container(),
 /// )
 /// ```
 /// {@endtemplate}
-
-/// {@template state_notifier_listener_base}
-/// Base class for widgets that listen to state changes in a specified [stateNotifier].
-///
-/// A [StateNotifierListener] is stateful and maintains the state subscription.
-/// The type of the state and what happens with each state change
-/// is defined by sub-classes.
-/// {@endtemplate}
 class StateNotifierListener<Controller extends StateNotifier<Value>, Value>
     extends StatefulWidget {
-  /// {@macro state_notifier_listener_base}
+  /// {@macro state_notifier_listener}
   const StateNotifierListener({
     Key? key,
     required this.listener,
