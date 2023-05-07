@@ -1,7 +1,6 @@
 ## 0.8.0
 
 - Added `StateNotifierListener` widget, to invoke listener in response to a `StateNotifier` state changes.
-- Added `MultiStateNotifierListener` widget, to merges multiples `StateNotifierListener` widgets into one.
 
 ## 0.7.3
 
