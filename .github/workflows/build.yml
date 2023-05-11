@@ -45,10 +45,6 @@ jobs:
         run: dart test --coverage coverage
         working-directory: ${{ matrix.package }}
 
-      # - name: Coverage
-      #   run: dart run coverage:format_coverage -l -i ./coverage/test/state_notifier_test.dart.vm.json -o ./coverage/lcov.info --packages ./.packages
-      #   working-directory: ${{ matrix.package }}
-
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v1
         with:
@@ -64,17 +60,17 @@ jobs:
           - packages/flutter_state_notifier
           - packages/flutter_state_notifier/example
         channel:
-          - dev
-          - beta
+          - master
+          - stable
 
     steps:
       - uses: actions/checkout@v2
 
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2.7.1
         with:
           channel: ${{ matrix.channel }}
 
-      # It is executed separatly
+          # It is executed separatly
       - name: Removing example folder
         run: rm -rf example
         working-directory: ${{ matrix.package }}
@@ -87,7 +83,9 @@ jobs:
         working-directory: ${{ matrix.package }}
 
       - name: Check format
-        run: flutter format --set-exit-if-changed .
+        run: dart format --set-exit-if-changed .
+        # Check dart format only on master
+        if: matrix.channel == 'master'
         working-directory: ${{ matrix.package }}
 
       - name: Analyze
