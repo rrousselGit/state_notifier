@@ -254,6 +254,19 @@ Consider checking `mounted`.
     return result;
   }
 
+  /// A development-only way to set [state] outside of [StateNotifier].
+  ///
+  /// The only difference with [state] is that [debugState] is not "protected".\
+  /// Will not work in release mode.
+  ///
+  /// This is useful for tests to provide seed state.
+  set debugState(T value) {
+    assert(() {
+      _state = value;
+      return true;
+    }(), '');
+  }
+
   /// If a listener has been added using [addListener] and hasn't been removed yet.
   bool get hasListeners {
     assert(_debugIsMounted(), '');
