@@ -245,6 +245,7 @@ Consider checking `mounted`.
   /// Will not work in release mode.
   ///
   /// This is useful for tests.
+  @visibleForTesting
   T get debugState {
     late T result;
     assert(() {
@@ -260,6 +261,7 @@ Consider checking `mounted`.
   /// Will not work in release mode.
   ///
   /// This is useful for tests to provide seed state.
+  @visibleForTesting
   set debugState(T value) {
     assert(() {
       _state = value;

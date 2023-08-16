@@ -51,6 +51,13 @@ void main() {
     expect(notifier.debugState, 2);
   });
 
+  test('debugState modifies the value', () {
+    final notifier = TestNotifier(0);
+    notifier.debugState = 1;
+    expect(notifier.currentState, 1);
+    expect(notifier.debugState, 1);
+  });
+
   test(
       'listener called immediately on addition + synchronously on value change',
       () {
