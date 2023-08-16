@@ -1,3 +1,8 @@
+## Unreleased minor
+
+- `state` is now accessible in tests without a warning.
+- Deprecated `debugState`. Use `state` instead.
+
 ## 0.7.2+1
 
 - Fixed an issue with `updateShouldNotify` naturally always returning `false`.
