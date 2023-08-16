@@ -1,4 +1,4 @@
-import 'package:example/my_state_notifier.dart';
+import 'package:flutter_example/my_state_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 

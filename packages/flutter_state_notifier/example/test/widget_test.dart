@@ -2,9 +2,9 @@
 //
 // Instead of testing MyStateNotifier here, we test the UI that uses it.
 
-import 'package:example/main.dart';
-import 'package:example/my_state_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_example/main.dart';
+import 'package:flutter_example/my_state_notifier.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';

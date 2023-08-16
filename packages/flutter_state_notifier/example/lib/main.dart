@@ -1,5 +1,5 @@
-import 'package:example/my_state_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_example/my_state_notifier.dart';
 import 'package:flutter_state_notifier/flutter_state_notifier.dart';
 import 'package:provider/provider.dart';
 
