@@ -192,6 +192,7 @@ Consider checking `mounted`.
   ///
   /// Updating the state will throw if at least one listener throws.
   @protected
+  @visibleForTesting
   T get state {
     assert(_debugIsMounted(), '');
     return _state;
@@ -206,6 +207,7 @@ Consider checking `mounted`.
       !identical(old, current);
 
   @protected
+  @visibleForTesting
   set state(T value) {
     assert(_debugIsMounted(), '');
     final previousState = _state;
@@ -245,7 +247,7 @@ Consider checking `mounted`.
   /// Will not work in release mode.
   ///
   /// This is useful for tests.
-  @visibleForTesting
+  @Deprecated('Use state instead')
   T get debugState {
     late T result;
     assert(() {
@@ -253,20 +255,6 @@ Consider checking `mounted`.
       return true;
     }(), '');
     return result;
-  }
-
-  /// A development-only way to set [state] outside of [StateNotifier].
-  ///
-  /// The only difference with [state] is that [debugState] is not "protected".\
-  /// Will not work in release mode.
-  ///
-  /// This is useful for tests to provide seed state.
-  @visibleForTesting
-  set debugState(T value) {
-    assert(() {
-      _state = value;
-      return true;
-    }(), '');
   }
 
   /// If a listener has been added using [addListener] and hasn't been removed yet.

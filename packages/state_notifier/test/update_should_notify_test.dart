@@ -48,7 +48,7 @@ void main() {
       notifier.decrement();
 
       verifyNoMoreInteractions(listener);
-      expect(notifier.debugState, 0);
+      expect(notifier.state, 0);
     },
   );
 
