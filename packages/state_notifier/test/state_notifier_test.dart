@@ -30,25 +30,32 @@ Matcher throwsStateNotifierListenerError({
 
 void main() {
   test('initialize state with default value', () {
-    expect(TestNotifier(0).currentState, 0);
-    expect(TestNotifier(42).currentState, 42);
-    expect(TestNotifier(0).debugState, 0);
-    expect(TestNotifier(42).debugState, 42);
+    expect(TestNotifier(0).state, 0);
+    expect(TestNotifier(42).state, 42);
   });
 
   test('setter modifies the value', () {
     final notifier = TestNotifier(0);
 
-    expect(notifier.currentState, 0);
-    expect(notifier.debugState, 0);
+    expect(notifier.state, 0);
 
     notifier.increment();
-    expect(notifier.currentState, 1);
-    expect(notifier.debugState, 1);
+    expect(notifier.state, 1);
 
     notifier.increment();
-    expect(notifier.currentState, 2);
-    expect(notifier.debugState, 2);
+    expect(notifier.state, 2);
+  });
+
+  test('can set state', () {
+    final notifier = TestNotifier(0);
+    expectLater(notifier.stream, emitsInOrder([1, 2]));
+    notifier.state = 1;
+    expect(notifier.state, 1);
+    notifier.state = 2;
+    expect(notifier.state, 2);
+    notifier.state = 2;
+    expect(notifier.state, 2);
+    notifier.dispose();
   });
 
   test(
@@ -199,7 +206,7 @@ void main() {
 
     notifier.dispose();
 
-    expect(() => notifier.currentState, throwsStateError);
+    expect(() => notifier.state, throwsStateError);
     expect(notifier.increment, throwsStateError);
     expect(() => notifier.hasListeners, throwsStateError);
     expect(() => notifier.read, throwsStateError);
@@ -454,8 +461,6 @@ void main() {
 
 class TestNotifier extends StateNotifier<int> with LocatorMixin {
   TestNotifier(int state) : super(state);
-
-  int get currentState => state;
 
   void increment() => state++;
 

@@ -192,6 +192,7 @@ Consider checking `mounted`.
   ///
   /// Updating the state will throw if at least one listener throws.
   @protected
+  @visibleForTesting
   T get state {
     assert(_debugIsMounted(), '');
     return _state;
@@ -206,6 +207,7 @@ Consider checking `mounted`.
       !identical(old, current);
 
   @protected
+  @visibleForTesting
   set state(T value) {
     assert(_debugIsMounted(), '');
     final previousState = _state;
@@ -245,6 +247,7 @@ Consider checking `mounted`.
   /// Will not work in release mode.
   ///
   /// This is useful for tests.
+  @Deprecated('Use state instead')
   T get debugState {
     late T result;
     assert(() {
