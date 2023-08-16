@@ -1,9 +1,13 @@
 [![pub package](https://img.shields.io/pub/v/state_notifier.svg)](https://pub.dartlang.org/packages/state_notifier)
 Welcome to **state_notifier**~
 
-This package is a recommended solution for managing state when using [Provider] or [Riverpod].
+This package is a recommended solution for managing state when using [Provider].
 
 Long story short, instead of extending [ChangeNotifier], extend [StateNotifier]:
+
+However, this package is **NO LONGER** a recommended solution for managing state when using [Riverpod].
+
+Use [Notifier], [AsyncNotifier], or [StreamNotifier] when using [Riverpod].
 
 ```dart
 class City {
@@ -307,3 +311,6 @@ test('increment and saves to local storage', () {
 [locatormixin]: https://pub.dev/documentation/state_notifier/latest/state_notifier/LocatorMixin-class.html
 [valuenotifier]: https://api.flutter.dev/flutter/foundation/ValueNotifier-class.html
 [changenotifier]: https://api.flutter.dev/flutter/foundation/ChangeNotifier-class.html
+[notifier]: https://pub.dev/documentation/riverpod/latest/riverpod/Notifier-class.html
+[asyncnotifier]: https://pub.dev/documentation/riverpod/latest/riverpod/AsyncNotifier-class.html
+[streamnotifier]: https://pub.dev/documentation/riverpod/latest/riverpod/StreamNotifier-class.html
