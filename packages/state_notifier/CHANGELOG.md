@@ -1,7 +1,7 @@
-## Unreleased minor
+## 1.0.0 - 2023-08-16
 
 - `state` is now accessible in tests without a warning.
-- Deprecated `debugState`. Use `state` instead.
+- `debugState` is removed Use `state` instead.
 
 ## 0.7.2+1
 
